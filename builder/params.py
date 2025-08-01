@@ -85,4 +85,4 @@ class Params:
 
     def toString(self):
         # 按url参数格式拼接参数
-        return "&".join([f"{k}={v}" for k, v in self.params.items()])
+        return "&".join([f"{k}={str(v)}" for k, v in self.params.items()])

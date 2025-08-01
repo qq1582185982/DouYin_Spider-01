@@ -115,24 +115,54 @@ def save_to_xlsx(datas, file_path):
     headers = ['作品id', '作品url', '作品类型', '作品标题', '描述', 'admire数量', '点赞数量', '评论数量', '收藏数量', '分享数量', '视频地址url', '图片地址url列表', '标签', '上传时间', '视频封面url', '用户主页url', '用户id', '昵称', '头像url', '用户描述', '关注数量', '粉丝数量', '作品被赞和收藏数量', '作品数量', '用户年龄', '性别', 'ip归属地']
     ws.append(headers)
     for data in datas:
-        data = {k: norm_text(str(v)) for k, v in data.items()}
-        ws.append(list(data.values()))
+        # 确保所有值都转换为字符串，特别处理列表和字典类型
+        processed_data = {}
+        for k, v in data.items():
+            if isinstance(v, list):
+                processed_data[k] = ', '.join(str(item) for item in v)
+            elif isinstance(v, dict):
+                processed_data[k] = str(v)
+            else:
+                processed_data[k] = norm_text(str(v))
+        ws.append(list(processed_data.values()))
     wb.save(file_path)
     logger.info(f'数据保存至 {file_path}')
 
 def download_media(path, name, url, type):
+    # 添加必要的请求头以绕过403错误
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://www.douyin.com/',
+        'Accept': '*/*',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Sec-Fetch-Dest': 'video',
+        'Sec-Fetch-Mode': 'no-cors',
+        'Sec-Fetch-Site': 'cross-site',
+    }
+    
     if type == 'image':
-        content = requests.get(url).content
+        content = requests.get(url, headers=headers).content
         with open(path + '/' + name + '.jpg', mode="wb") as f:
             f.write(content)
     elif type == 'video':
-        res = requests.get(url, stream=True)
-        size = 0
-        chunk_size = 1024 * 1024
-        with open(path + '/' + name + '.mp4', mode="wb") as f:
-            for data in res.iter_content(chunk_size=chunk_size):
-                f.write(data)
-                size += len(data)
+        res = requests.get(url, stream=True, headers=headers)
+        if res.status_code == 200:
+            size = 0
+            chunk_size = 1024 * 1024
+            with open(path + '/' + name + '.mp4', mode="wb") as f:
+                for data in res.iter_content(chunk_size=chunk_size):
+                    f.write(data)
+                    size += len(data)
+            logger.info(f'视频下载完成，大小: {size} bytes')
+        else:
+            logger.error(f'视频下载失败，状态码: {res.status_code}, URL: {url}')
+            # 保存错误信息到文件以便调试
+            with open(path + '/' + name + '_error.txt', mode="w", encoding="utf-8") as f:
+                f.write(f"Status Code: {res.status_code}\n")
+                f.write(f"URL: {url}\n")
+                f.write(f"Response: {res.text[:1000]}\n")
 
 
 def save_wrok_detail(work, path):
@@ -149,8 +179,25 @@ def save_wrok_detail(work, path):
         f.write(f"收藏数量: {work['collect_count']}\n")
         f.write(f"分享数量: {work['share_count']}\n")
         f.write(f"视频地址url: {work['video_addr']}\n")
-        f.write(f"图片地址url列表: {', '.join(work['images'])}\n")
-        f.write(f"标签: {', '.join(work['topics'])}\n")
+        images = work['images'] if isinstance(work['images'], list) else []
+        topics = work['topics'] if isinstance(work['topics'], list) else []
+        # 确保images列表中的所有项都是字符串
+        image_urls = []
+        for img in images:
+            if isinstance(img, dict):
+                # 如果是字典，尝试获取URL
+                if 'url_list' in img and img['url_list']:
+                    image_urls.append(str(img['url_list'][0]))
+                elif 'url' in img:
+                    image_urls.append(str(img['url']))
+                else:
+                    image_urls.append(str(img))
+            else:
+                image_urls.append(str(img))
+        # 确保topics列表中的所有项都是字符串
+        topic_names = [str(topic) for topic in topics]
+        f.write(f"图片地址url列表: {', '.join(image_urls)}\n")
+        f.write(f"标签: {', '.join(topic_names)}\n")
         f.write(f"上传时间: {timestamp_to_str(work['create_time'])}\n")
         f.write(f"视频封面url: {work['video_cover']}\n")
         f.write(f"用户主页url: {work['user_url']}\n")
