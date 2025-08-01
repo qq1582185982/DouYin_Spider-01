@@ -1,0 +1,939 @@
+Windows PowerShell
+版权所有（C） Microsoft Corporation。保留所有权利。
+
+安装最新的 PowerShell，了解新功能和改进！https://aka.ms/PSWindows
+
+PS C:\Users\001> cd  D:\games\AI\win小玩意\抖音视频管理工具\DouYin_Spider-01\web\
+PS D:\games\AI\win小玩意\抖音视频管理工具\DouYin_Spider-01\web> npm run dev
+
+> douyin-spider-web@0.0.1 dev
+> vite dev
+
+
+  VITE v6.3.5  ready in 695 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+10:29:49 [vite] (ssr) Error when evaluating SSR module /src/routes/+layout.svelte: [postcss] Missing "./base" specifierin "tailwindcss" package
+  Plugin: vite:css
+  File: D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/app.css:undefined:NaN
+      at e (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:25)
+      at n (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:631)
+      at o (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:1293)
+      at resolveExportsOrImports (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16217:18)
+      at resolveDeepImport (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16230:25)
+      at tryNodeResolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16060:18)
+      at ResolveIdContext.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:15831:19)
+      at EnvironmentPluginContainer.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42213:17)
+      at async resolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42802:12)
+      at async file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42820:22
+Error: [postcss] Missing "./base" specifier in "tailwindcss" package
+    at e (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:25)
+    at n (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:631)
+    at o (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:1293)
+    at resolveExportsOrImports (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16217:18)
+    at resolveDeepImport (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16230:25)
+    at tryNodeResolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16060:18)
+    at ResolveIdContext.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:15831:19)
+    at EnvironmentPluginContainer.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42213:17)
+    at async resolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42802:12)
+    at async file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42820:22 {
+  code: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  loc: { file: undefined, line: undefined, column: NaN },
+  plugin: 'vite:css',
+  id: 'D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/app.css',
+  pluginCode: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  frame: '',
+  runnerError: Error: RunnerError
+      at reviveInvokeError (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:552:18)
+      at Object.invoke (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:635:15)
+      at async SSRCompatModuleRunner.getModuleInformation (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1205:73)
+      at async request (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1227:88)
+      at async eval (D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/routes/+layout.svelte:4:140)
+      at async ESModulesEvaluator.runInlinedModule (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1062:5)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1284:61)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:25274:23)
+      at async SSRCompatModuleRunner.cachedRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1180:76)
+      at async SSRCompatModuleRunner.import (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1117:12)
+}
+Error: [postcss] Missing "./base" specifier in "tailwindcss" package
+    at e (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:25)
+    at n (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:631)
+    at o (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:1293)
+    at resolveExportsOrImports (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16217:18)
+    at resolveDeepImport (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16230:25)
+    at tryNodeResolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16060:18)
+    at ResolveIdContext.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:15831:19)
+    at EnvironmentPluginContainer.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42213:17)
+    at async resolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42802:12)
+    at async file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42820:22 {
+  code: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  loc: { file: undefined, line: undefined, column: NaN },
+  plugin: 'vite:css',
+  id: 'D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/app.css',
+  pluginCode: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  frame: '',
+  runnerError: Error: RunnerError
+      at reviveInvokeError (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:552:18)
+      at Object.invoke (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:635:15)
+      at async SSRCompatModuleRunner.getModuleInformation (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1205:73)
+      at async request (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1227:88)
+      at async eval (D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/routes/+layout.svelte:4:140)
+      at async ESModulesEvaluator.runInlinedModule (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1062:5)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1284:61)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:25274:23)
+      at async SSRCompatModuleRunner.cachedRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1180:76)
+      at async SSRCompatModuleRunner.import (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1117:12)
+}
+Error: [postcss] Missing "./base" specifier in "tailwindcss" package
+    at e (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:25)
+    at n (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:631)
+    at o (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:1293)
+    at resolveExportsOrImports (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16217:18)
+    at resolveDeepImport (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16230:25)
+    at tryNodeResolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16060:18)
+    at ResolveIdContext.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:15831:19)
+    at EnvironmentPluginContainer.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42213:17)
+    at async resolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42802:12)
+    at async file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42820:22 {
+  code: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  loc: { file: undefined, line: undefined, column: NaN },
+  plugin: 'vite:css',
+  id: 'D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/app.css',
+  pluginCode: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  frame: '',
+  runnerError: Error: RunnerError
+      at reviveInvokeError (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:552:18)
+      at Object.invoke (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:635:15)
+      at async SSRCompatModuleRunner.getModuleInformation (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1205:73)
+      at async request (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1227:88)
+      at async eval (D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/routes/+layout.svelte:4:140)
+      at async ESModulesEvaluator.runInlinedModule (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1062:5)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1284:61)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:25274:23)
+      at async SSRCompatModuleRunner.cachedRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1180:76)
+      at async SSRCompatModuleRunner.import (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1117:12)
+}
+Error: [postcss] Missing "./base" specifier in "tailwindcss" package
+    at e (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:25)
+    at n (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:631)
+    at o (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:1293)
+    at resolveExportsOrImports (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16217:18)
+    at resolveDeepImport (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16230:25)
+    at tryNodeResolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16060:18)
+    at ResolveIdContext.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:15831:19)
+    at EnvironmentPluginContainer.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42213:17)
+    at async resolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42802:12)
+    at async file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42820:22 {
+  code: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  loc: { file: undefined, line: undefined, column: NaN },
+  plugin: 'vite:css',
+  id: 'D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/app.css',
+  pluginCode: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  frame: '',
+  runnerError: Error: RunnerError
+      at reviveInvokeError (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:552:18)
+      at Object.invoke (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:635:15)
+      at async SSRCompatModuleRunner.getModuleInformation (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1205:73)
+      at async request (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1227:88)
+      at async eval (D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/routes/+layout.svelte:4:140)
+      at async ESModulesEvaluator.runInlinedModule (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1062:5)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1284:61)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:25274:23)
+      at async SSRCompatModuleRunner.cachedRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1180:76)
+      at async SSRCompatModuleRunner.import (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1117:12)
+}
+
+Google Chrome is requesting /.well-known/appspecific/com.chrome.devtools.json to automatically configure devtools project settings. To learn why, and how to prevent this message, see https://svelte.dev/docs/cli/devtools-json
+
+Error: [postcss] Missing "./base" specifier in "tailwindcss" package
+    at e (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:25)
+    at n (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:631)
+    at o (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:1293)
+    at resolveExportsOrImports (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16217:18)
+    at resolveDeepImport (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16230:25)
+    at tryNodeResolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16060:18)
+    at ResolveIdContext.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:15831:19)
+    at EnvironmentPluginContainer.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42213:17)
+    at async resolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42802:12)
+    at async file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42820:22 {
+  code: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  loc: { file: undefined, line: undefined, column: NaN },
+  plugin: 'vite:css',
+  id: 'D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/app.css',
+  pluginCode: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  frame: '',
+  runnerError: Error: RunnerError
+      at reviveInvokeError (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:552:18)
+      at Object.invoke (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:635:15)
+      at async SSRCompatModuleRunner.getModuleInformation (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1205:73)
+      at async request (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1227:88)
+      at async eval (D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/routes/+layout.svelte:4:140)
+      at async ESModulesEvaluator.runInlinedModule (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1062:5)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1284:61)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:25274:23)
+      at async SSRCompatModuleRunner.cachedRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1180:76)
+      at async SSRCompatModuleRunner.import (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1117:12)
+}
+Error: [postcss] Missing "./base" specifier in "tailwindcss" package
+    at e (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:25)
+    at n (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:631)
+    at o (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:12200:1293)
+    at resolveExportsOrImports (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16217:18)
+    at resolveDeepImport (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16230:25)
+    at tryNodeResolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:16060:18)
+    at ResolveIdContext.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:15831:19)
+    at EnvironmentPluginContainer.resolveId (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42213:17)
+    at async resolve (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42802:12)
+    at async file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42820:22 {
+  code: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  loc: { file: undefined, line: undefined, column: NaN },
+  plugin: 'vite:css',
+  id: 'D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/app.css',
+  pluginCode: "@import 'tailwindcss/base';\r\n" +
+    "@import 'tailwindcss/components';\r\n" +
+    "@import 'tailwindcss/utilities';\r\n" +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  :root {\r\n' +
+    '    --background: 0 0% 100%;\r\n' +
+    '    --foreground: 222.2 84% 4.9%;\r\n' +
+    '    --card: 0 0% 100%;\r\n' +
+    '    --card-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --popover: 0 0% 100%;\r\n' +
+    '    --popover-foreground: 222.2 84% 4.9%;\r\n' +
+    '    --primary: 222.2 47.4% 11.2%;\r\n' +
+    '    --primary-foreground: 210 40% 98%;\r\n' +
+    '    --secondary: 210 40% 96.1%;\r\n' +
+    '    --secondary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --muted: 210 40% 96.1%;\r\n' +
+    '    --muted-foreground: 215.4 16.3% 46.9%;\r\n' +
+    '    --accent: 210 40% 96.1%;\r\n' +
+    '    --accent-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --destructive: 0 84.2% 60.2%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 214.3 31.8% 91.4%;\r\n' +
+    '    --input: 214.3 31.8% 91.4%;\r\n' +
+    '    --ring: 222.2 84% 4.9%;\r\n' +
+    '    --radius: 0.5rem;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .dark {\r\n' +
+    '    --background: 222.2 84% 4.9%;\r\n' +
+    '    --foreground: 210 40% 98%;\r\n' +
+    '    --card: 222.2 84% 4.9%;\r\n' +
+    '    --card-foreground: 210 40% 98%;\r\n' +
+    '    --popover: 222.2 84% 4.9%;\r\n' +
+    '    --popover-foreground: 210 40% 98%;\r\n' +
+    '    --primary: 210 40% 98%;\r\n' +
+    '    --primary-foreground: 222.2 47.4% 11.2%;\r\n' +
+    '    --secondary: 217.2 32.6% 17.5%;\r\n' +
+    '    --secondary-foreground: 210 40% 98%;\r\n' +
+    '    --muted: 217.2 32.6% 17.5%;\r\n' +
+    '    --muted-foreground: 215 20.2% 65.1%;\r\n' +
+    '    --accent: 217.2 32.6% 17.5%;\r\n' +
+    '    --accent-foreground: 210 40% 98%;\r\n' +
+    '    --destructive: 0 62.8% 30.6%;\r\n' +
+    '    --destructive-foreground: 210 40% 98%;\r\n' +
+    '    --border: 217.2 32.6% 17.5%;\r\n' +
+    '    --input: 217.2 32.6% 17.5%;\r\n' +
+    '    --ring: 212.7 26.8% 83.9%;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer base {\r\n' +
+    '  * {\r\n' +
+    '    @apply border-border;\r\n' +
+    '  }\r\n' +
+    '  body {\r\n' +
+    '    @apply bg-background text-foreground;\r\n' +
+    '  }\r\n' +
+    '  html {\r\n' +
+    '    scroll-behavior: smooth;\r\n' +
+    '  }\r\n' +
+    '}',
+  frame: '',
+  runnerError: Error: RunnerError
+      at reviveInvokeError (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:552:18)
+      at Object.invoke (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:635:15)
+      at async SSRCompatModuleRunner.getModuleInformation (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1205:73)
+      at async request (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1227:88)
+      at async eval (D:/games/AI/win小玩意/抖音视频管理工具/DouYin_Spider-01/web/src/routes/+layout.svelte:4:140)
+      at async ESModulesEvaluator.runInlinedModule (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1062:5)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1284:61)
+      at async SSRCompatModuleRunner.directRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:25274:23)
+      at async SSRCompatModuleRunner.cachedRequest (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1180:76)
+      at async SSRCompatModuleRunner.import (file:///D:/games/AI/win%E5%B0%8F%E7%8E%A9%E6%84%8F/%E6%8A%96%E9%9F%B3%E8%A7%86%E9%A2%91%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7/DouYin_Spider-01/web/node_modules/vite/dist/node/module-runner.js:1117:12)
+}

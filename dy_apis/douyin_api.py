@@ -8,7 +8,7 @@ import uuid
 import requests
 requests.packages.urllib3.disable_warnings()
 from bs4 import BeautifulSoup
-from protobuf_to_dict import protobuf_to_dict
+from protobuf3_to_dict import protobuf_to_dict
 
 import static.Response_pb2 as ResponseProto
 from builder.header import HeaderBuilder, HeaderType
