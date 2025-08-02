@@ -77,7 +77,7 @@ class Data_Spider():
         return download_stats
 
 
-    def spider_user_all_work(self, auth, user_url: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None, force_download=False, use_database=True):
+    def spider_user_all_work(self, auth, user_url: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None, force_download=False, use_database=True, selected_videos=None):
         """
         爬取一个用户的所有作品，支持数据库预过滤
         :param auth: 用户认证信息
@@ -88,10 +88,16 @@ class Data_Spider():
         :param proxies: 代理
         :param force_download: 是否强制下载
         :param use_database: 是否使用数据库优化
+        :param selected_videos: 选中的视频ID列表，如果提供则只下载选中的视频
         :return:
         """
         user_info = self.douyin_apis.get_user_info(auth, user_url)
         work_list = self.douyin_apis.get_user_all_work_info(auth, user_url)
+        
+        # 如果提供了选中的视频列表，则过滤作品列表
+        if selected_videos:
+            work_list = [work for work in work_list if work.get('aweme_id', '') in selected_videos]
+            logger.info(f'用户选择了 {len(work_list)} 个作品进行下载')
         
         # 提取用户ID用于数据库查询
         user_id = user_info['user'].get('sec_uid', '')

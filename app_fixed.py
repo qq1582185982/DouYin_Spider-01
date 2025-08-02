@@ -235,6 +235,101 @@ def update_config():
         logger.error(f"更新配置失败: {e}")
         return jsonify({'code': 500, 'message': str(e)}), 500
 
+@app.route('/api/spider/search-users', methods=['POST'])
+def search_users():
+    """搜索用户"""
+    try:
+        data = request.get_json()
+        query = data.get('query')
+        num = data.get('num', 10)
+        
+        if not query:
+            raise BadRequest('query is required')
+        
+        if not config.get('cookie'):
+            raise BadRequest('请先配置Cookie')
+        
+        # 调用API搜索用户
+        from dy_apis.douyin_api import DouyinAPI
+        user_list = DouyinAPI.search_some_user(auth, query, num)
+        
+        # 格式化用户信息
+        formatted_users = []
+        for user in user_list:
+            user_info = user.get('user_info', {})
+            formatted_users.append({
+                'user_id': user_info.get('uid', ''),
+                'sec_uid': user_info.get('sec_uid', ''),
+                'nickname': user_info.get('nickname', ''),
+                'avatar': user_info.get('avatar_thumb', {}).get('url_list', [''])[0],
+                'signature': user_info.get('signature', ''),
+                'follower_count': user_info.get('follower_count', 0),
+                'total_favorited': user_info.get('total_favorited', 0),
+                'aweme_count': user_info.get('aweme_count', 0),
+                'user_url': f"https://www.douyin.com/user/{user_info.get('sec_uid', '')}"
+            })
+        
+        return jsonify({'code': 0, 'message': 'success', 'data': formatted_users})
+    except BadRequest as e:
+        return jsonify({'code': 400, 'message': str(e)}), 400
+    except Exception as e:
+        logger.error(f"搜索用户失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/spider/user-videos', methods=['POST'])
+def get_user_videos():
+    """获取用户的视频列表（不下载）"""
+    try:
+        data = request.get_json()
+        user_url = data.get('user_url')
+        
+        if not user_url:
+            raise BadRequest('user_url is required')
+        
+        if not config.get('cookie'):
+            raise BadRequest('请先配置Cookie')
+        
+        # 获取用户信息和作品列表
+        from dy_apis.douyin_api import DouyinAPI
+        user_info = DouyinAPI.get_user_info(auth, user_url)
+        work_list = DouyinAPI.get_user_all_work_info(auth, user_url)
+        
+        # 格式化作品信息
+        formatted_works = []
+        for work in work_list:
+            formatted_works.append({
+                'aweme_id': work.get('aweme_id', ''),
+                'desc': work.get('desc', ''),
+                'create_time': work.get('create_time', 0),
+                'duration': work.get('duration', 0),
+                'cover': work.get('video', {}).get('cover', {}).get('url_list', [''])[0] if work.get('video') else '',
+                'statistics': {
+                    'digg_count': work.get('statistics', {}).get('digg_count', 0),
+                    'comment_count': work.get('statistics', {}).get('comment_count', 0),
+                    'share_count': work.get('statistics', {}).get('share_count', 0),
+                    'play_count': work.get('statistics', {}).get('play_count', 0)
+                },
+                'aweme_type': work.get('aweme_type', 0)  # 0: video, 68: image
+            })
+        
+        result = {
+            'user': {
+                'nickname': user_info['user'].get('nickname', ''),
+                'avatar': user_info['user'].get('avatar_thumb', {}).get('url_list', [''])[0],
+                'signature': user_info['user'].get('signature', ''),
+                'follower_count': user_info['user'].get('follower_count', 0),
+                'aweme_count': len(work_list)
+            },
+            'works': formatted_works
+        }
+        
+        return jsonify({'code': 0, 'message': 'success', 'data': result})
+    except BadRequest as e:
+        return jsonify({'code': 400, 'message': str(e)}), 400
+    except Exception as e:
+        logger.error(f"获取用户视频列表失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
 @app.route('/api/spider/user', methods=['POST'])
 def spider_user():
     """爬取用户所有作品"""
@@ -243,6 +338,7 @@ def spider_user():
         user_url = data.get('user_url')
         save_choice = data.get('save_choice', 'all')
         force_download = data.get('force_download', False)
+        selected_videos = data.get('selected_videos', [])  # 新增：选中的视频ID列表
         
         if not user_url:
             raise BadRequest('user_url is required')
@@ -304,7 +400,8 @@ def spider_user():
                             save_choice,
                             excel_name,
                             proxies=None,
-                            force_download=force_download
+                            force_download=force_download,
+                            selected_videos=selected_videos
                         )
                         
                         task['status'] = 'completed'

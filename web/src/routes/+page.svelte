@@ -12,8 +12,7 @@
     CheckCircle,
     XCircle,
     Clock,
-    Search,
-    Radio
+    Search
   } from 'lucide-svelte';
   import api from '$lib/api';
   import { formatBytes, cn } from '$lib/utils';
@@ -145,10 +144,6 @@
           <Button on:click={() => goto('/spider/search')} class="w-full justify-start" variant="outline">
             <Search class="mr-2 h-4 w-4" />
             搜索爬取
-          </Button>
-          <Button on:click={() => goto('/live')} class="w-full justify-start" variant="outline">
-            <Radio class="mr-2 h-4 w-4" />
-            监控直播间
           </Button>
         </CardContent>
       </Card>
