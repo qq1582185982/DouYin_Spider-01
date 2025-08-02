@@ -179,21 +179,23 @@
         <label for="save_path" class="mb-2 block text-sm font-medium">
           保存路径
         </label>
-        <div class="flex gap-2">
-          <Input
-            id="save_path"
-            type="text"
-            bind:value={config.save_path}
-            placeholder="例如：D:/DouYin/Downloads"
-            class="flex-1"
-          />
-          <Button variant="outline" size="icon">
-            <FolderOpen class="h-4 w-4" />
-          </Button>
-        </div>
+        <Input
+          id="save_path"
+          type="text"
+          bind:value={config.save_path}
+          placeholder="例如：D:/DouYin/Downloads"
+        />
         <p class="mt-1 text-xs text-muted-foreground">
           爬取的视频和图片将保存到此目录
         </p>
+        <div class="mt-2 rounded-md bg-blue-50 p-3 text-xs">
+          <p class="font-medium text-blue-900 mb-1">路径格式说明：</p>
+          <ul class="space-y-1 text-blue-700">
+            <li>• Windows: <code class="bg-blue-100 px-1 rounded">D:/Downloads</code> 或 <code class="bg-blue-100 px-1 rounded">D:\Downloads</code></li>
+            <li>• 相对路径: <code class="bg-blue-100 px-1 rounded">./downloads</code></li>
+            <li>• 路径会自动创建，无需手动创建文件夹</li>
+          </ul>
+        </div>
       </div>
     </CardContent>
   </Card>
