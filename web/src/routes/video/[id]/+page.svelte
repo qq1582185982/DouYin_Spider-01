@@ -126,20 +126,30 @@
       </div>
     {:else if videoData}
       <!-- 主要内容区域 -->
-      <div class="grid gap-6 {isMobile ? 'grid-cols-1' : 'lg:grid-cols-3'}">
-        <!-- 左侧：视频信息和封面 -->
-        <div class="{isMobile ? '' : 'lg:col-span-2'}">
-          <Card class="overflow-hidden">
-            <div class="relative">
-              {#if videoData.video?.cover}
-                <div class="aspect-[9/16] max-h-96 bg-gray-100 flex items-center justify-center overflow-hidden">
-                  <img 
-                    src={videoData.video.cover} 
-                    alt={videoData.title}
-                    class="h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
+      <div class="space-y-6">
+        <!-- 封面区域 - 居中显示 -->
+        <div class="w-full">
+          <div class="relative overflow-hidden rounded-lg bg-black">
+            {#if videoData.video?.cover}
+              <!-- 毛玻璃背景 -->
+              <div class="absolute inset-0">
+                <img 
+                  src={videoData.video.cover} 
+                  alt={videoData.title}
+                  class="w-full h-full object-cover filter blur-xl scale-110 opacity-50"
+                  loading="lazy"
+                />
+              </div>
+              
+              <!-- 居中的封面 -->
+              <div class="relative flex items-center justify-center aspect-video">
+                <img 
+                  src={videoData.video.cover} 
+                  alt={videoData.title}
+                  class="max-h-full max-w-full object-contain"
+                  loading="lazy"
+                />
+                
                 <!-- 播放按钮覆盖层 -->
                 <div class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity">
                   <Button size="lg" class="rounded-full">
@@ -147,12 +157,20 @@
                     播放视频
                   </Button>
                 </div>
-              {:else}
-                <div class="aspect-[9/16] max-h-96 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                  <Play class="h-16 w-16 text-gray-400" />
-                </div>
-              {/if}
-            </div>
+              </div>
+            {:else}
+              <div class="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                <Play class="h-16 w-16 text-gray-400" />
+              </div>
+            {/if}
+          </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="grid gap-6 {isMobile ? 'grid-cols-1' : 'lg:grid-cols-3'}">
+          <!-- 左侧：视频信息 -->
+          <div class="{isMobile ? '' : 'lg:col-span-2'}">
+            <Card class="overflow-hidden">
 
             <CardHeader>
               <div class="flex items-start justify-between gap-4">
@@ -337,6 +355,7 @@
           </Card>
         </div>
       </div>
+    </div>
     {:else}
       <div class="flex items-center justify-center py-16">
         <Card>
