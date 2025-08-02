@@ -168,73 +168,142 @@
 
         <!-- 内容区域 -->
         <div class="grid gap-6 {isMobile ? 'grid-cols-1' : 'lg:grid-cols-3'}">
-          <!-- 左侧：视频信息 -->
-          <div class="{isMobile ? '' : 'lg:col-span-2'}">
+          <!-- 左侧：视频信息和详细信息 -->
+          <div class="{isMobile ? '' : 'lg:col-span-2'} space-y-6">
+            <!-- 视频信息卡片 -->
             <Card class="overflow-hidden">
-
-            <CardHeader>
-              <div class="flex items-start justify-between gap-4">
-                <CardTitle class="text-xl leading-tight">
-                  {videoData.title || videoData.desc || '无标题'}
-                </CardTitle>
-                <Badge variant="secondary">
-                  {videoData.work_type}
-                </Badge>
-              </div>
-            </CardHeader>
-
-            <CardContent class="space-y-4">
-              <!-- 作者信息 -->
-              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-                  {videoData.author.nickname.charAt(0)}
+              <CardHeader>
+                <div class="flex items-start justify-between gap-4">
+                  <CardTitle class="text-xl leading-tight">
+                    {videoData.title || videoData.desc || '无标题'}
+                  </CardTitle>
+                  <Badge variant="secondary">
+                    {videoData.work_type}
+                  </Badge>
                 </div>
-                <div class="flex-1">
-                  <h3 class="font-medium">{videoData.author.nickname}</h3>
-                  <p class="text-sm text-muted-foreground">
-                    {videoData.author.follower_count ? `${formatNumber(videoData.author.follower_count)} 粉丝` : '抖音用户'}
-                  </p>
-                </div>
-              </div>
+              </CardHeader>
 
-              <!-- 视频描述 -->
-              {#if videoData.desc && videoData.desc !== videoData.title}
-                <div class="space-y-2">
-                  <h4 class="font-medium">视频描述</h4>
-                  <p class="text-sm text-muted-foreground leading-relaxed">
-                    {videoData.desc}
-                  </p>
-                </div>
-              {/if}
-
-              <!-- 话题标签 -->
-              {#if videoData.topics && videoData.topics.length > 0}
-                <div class="space-y-2">
-                  <h4 class="font-medium">相关话题</h4>
-                  <div class="flex flex-wrap gap-2">
-                    {#each videoData.topics as topic}
-                      <Badge variant="outline" class="text-xs">
-                        #{topic}
-                      </Badge>
-                    {/each}
+              <CardContent class="space-y-4">
+                <!-- 作者信息 -->
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                    {videoData.author.nickname.charAt(0)}
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="font-medium">{videoData.author.nickname}</h3>
+                    <p class="text-sm text-muted-foreground">
+                      {videoData.author.follower_count ? `${formatNumber(videoData.author.follower_count)} 粉丝` : '抖音用户'}
+                    </p>
                   </div>
                 </div>
-              {/if}
 
-              <!-- 操作按钮 -->
-              <div class="flex gap-2 pt-4 border-t">
-                <Button on:click={openOriginalVideo} class="flex-1">
-                  <ExternalLink class="h-4 w-4 mr-2" />
-                  在抖音中打开
-                </Button>
-                <Button variant="outline" class="flex-1">
-                  <Download class="h-4 w-4 mr-2" />
-                  重新下载
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                <!-- 视频描述 -->
+                {#if videoData.desc && videoData.desc !== videoData.title}
+                  <div class="space-y-2">
+                    <h4 class="font-medium">视频描述</h4>
+                    <p class="text-sm text-muted-foreground leading-relaxed">
+                      {videoData.desc}
+                    </p>
+                  </div>
+                {/if}
+
+                <!-- 话题标签 -->
+                {#if videoData.topics && videoData.topics.length > 0}
+                  <div class="space-y-2">
+                    <h4 class="font-medium">相关话题</h4>
+                    <div class="flex flex-wrap gap-2">
+                      {#each videoData.topics as topic}
+                        <Badge variant="outline" class="text-xs">
+                          #{topic}
+                        </Badge>
+                      {/each}
+                    </div>
+                  </div>
+                {/if}
+
+                <!-- 操作按钮 -->
+                <div class="flex gap-2 pt-4 border-t">
+                  <Button on:click={openOriginalVideo} class="flex-1">
+                    <ExternalLink class="h-4 w-4 mr-2" />
+                    在抖音中打开
+                  </Button>
+                  <Button variant="outline" class="flex-1">
+                    <Download class="h-4 w-4 mr-2" />
+                    重新下载
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <!-- 基本信息和技术信息并排显示 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- 基本信息卡片 -->
+              <Card>
+                <CardHeader>
+                  <CardTitle class="text-lg">基本信息</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-3">
+                  <div class="flex items-center gap-2 text-sm">
+                    <Calendar class="h-4 w-4 text-muted-foreground" />
+                    <span class="text-muted-foreground">发布时间：</span>
+                    <span>{formatDate(videoData.create_time)}</span>
+                  </div>
+
+                                  <div class="flex items-center gap-2 text-sm">
+                  <Download class="h-4 w-4 text-muted-foreground" />
+                  <span class="text-muted-foreground">下载时间：</span>
+                  <span>{videoData.download_time ? new Date(videoData.download_time).toLocaleString('zh-CN') : '未知'}</span>
+                </div>
+
+                  {#if videoData.file_size}
+                    <div class="flex items-center gap-2 text-sm">
+                      <RefreshCw class="h-4 w-4 text-muted-foreground" />
+                      <span class="text-muted-foreground">文件大小：</span>
+                      <span>{(videoData.file_size / 1024 / 1024).toFixed(2)} MB</span>
+                    </div>
+                  {/if}
+
+                  <div class="flex items-center gap-2 text-sm">
+                    <Badge variant={videoData.is_complete ? "default" : "destructive"} class="text-xs">
+                      {videoData.is_complete ? "下载完成" : "下载中"}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <!-- 技术信息卡片 -->
+              <Card>
+                <CardHeader>
+                  <CardTitle class="text-lg">技术信息</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-3">
+                  <div class="space-y-2">
+                    <div class="text-sm">
+                      <span class="text-muted-foreground">作品ID：</span>
+                      <code class="bg-gray-100 px-2 py-1 rounded text-xs">{videoData.work_id}</code>
+                    </div>
+                    
+                    <div class="text-sm">
+                      <span class="text-muted-foreground">用户ID：</span>
+                      <code class="bg-gray-100 px-2 py-1 rounded text-xs">{videoData.author.user_id}</code>
+                    </div>
+
+                    {#if videoData.work_url}
+                      <div class="text-sm">
+                        <span class="text-muted-foreground">原始链接：</span>
+                        <button 
+                          on:click={openOriginalVideo}
+                          class="text-blue-600 hover:text-blue-800 text-xs underline break-all"
+                        >
+                          {videoData.work_url}
+                        </button>
+                      </div>
+                    {/if}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
         <!-- 右侧：统计信息和详细数据 -->
         <div class="space-y-6">
@@ -288,71 +357,7 @@
             </CardContent>
           </Card>
 
-          <!-- 基本信息卡片 -->
-          <Card>
-            <CardHeader>
-              <CardTitle class="text-lg">基本信息</CardTitle>
-            </CardHeader>
-            <CardContent class="space-y-3">
-              <div class="flex items-center gap-2 text-sm">
-                <Calendar class="h-4 w-4 text-muted-foreground" />
-                <span class="text-muted-foreground">发布时间：</span>
-                <span>{formatDate(videoData.create_time)}</span>
-              </div>
 
-              <div class="flex items-center gap-2 text-sm">
-                <Download class="h-4 w-4 text-muted-foreground" />
-                <span class="text-muted-foreground">下载时间：</span>
-                <span>{videoData.download_time ? formatDate(new Date(videoData.download_time).getTime()) : '未知'}</span>
-              </div>
-
-              {#if videoData.file_size}
-                <div class="flex items-center gap-2 text-sm">
-                  <RefreshCw class="h-4 w-4 text-muted-foreground" />
-                  <span class="text-muted-foreground">文件大小：</span>
-                  <span>{(videoData.file_size / 1024 / 1024).toFixed(2)} MB</span>
-                </div>
-              {/if}
-
-              <div class="flex items-center gap-2 text-sm">
-                <Badge variant={videoData.is_complete ? "default" : "destructive"} class="text-xs">
-                  {videoData.is_complete ? "下载完成" : "下载中"}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <!-- 技术信息卡片 -->
-          <Card>
-            <CardHeader>
-              <CardTitle class="text-lg">技术信息</CardTitle>
-            </CardHeader>
-            <CardContent class="space-y-3">
-              <div class="space-y-2">
-                <div class="text-sm">
-                  <span class="text-muted-foreground">作品ID：</span>
-                  <code class="bg-gray-100 px-2 py-1 rounded text-xs">{videoData.work_id}</code>
-                </div>
-                
-                <div class="text-sm">
-                  <span class="text-muted-foreground">用户ID：</span>
-                  <code class="bg-gray-100 px-2 py-1 rounded text-xs">{videoData.author.user_id}</code>
-                </div>
-
-                {#if videoData.work_url}
-                  <div class="text-sm">
-                    <span class="text-muted-foreground">原始链接：</span>
-                    <button 
-                      on:click={openOriginalVideo}
-                      class="text-blue-600 hover:text-blue-800 text-xs underline break-all"
-                    >
-                      {videoData.work_url}
-                    </button>
-                  </div>
-                {/if}
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
