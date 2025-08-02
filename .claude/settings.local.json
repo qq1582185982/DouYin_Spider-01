@@ -9,7 +9,8 @@
       "Bash(xxd:*)",
       "Bash(rm:*)",
       "Bash(del test_image_fix.py)",
-      "mcp__unlimited-fetch__unlimited_fetch"
+      "mcp__unlimited-fetch__unlimited_fetch",
+      "Bash(npm run check:*)"
     ],
     "deny": []
   }
