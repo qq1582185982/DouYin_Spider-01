@@ -12,7 +12,9 @@
       "mcp__unlimited-fetch__unlimited_fetch",
       "Bash(npm run check:*)",
       "Bash(mkdir:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(del utilsdownload_db.py utilssubscription_db.py)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

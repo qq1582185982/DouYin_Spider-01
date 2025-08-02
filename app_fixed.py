@@ -14,8 +14,7 @@ from loguru import logger
 # 导入实际的爬虫和认证类
 from main import Data_Spider
 from builder.auth import DouyinAuth
-from utils.download_db import get_download_db
-from utils.subscription_db import get_subscription_db
+from utils.database import get_database
 
 app = Flask(__name__)
 CORS(app)
@@ -599,7 +598,7 @@ def get_work(work_id):
     """获取单个作品详情"""
     try:
         # 从数据库查找作品
-        db = get_download_db()
+        db = get_database()
         work = db.get_work_info(work_id)
         
         if not work:
@@ -686,7 +685,7 @@ def get_works():
     
     try:
         # 从数据库读取基本数据
-        db = get_download_db()
+        db = get_database()
         offset = (page - 1) * limit
         recent_works = db.get_recent_downloads(limit, offset)
         
@@ -788,7 +787,7 @@ def get_works():
 def get_database_stats():
     """获取数据库统计信息"""
     try:
-        db = get_download_db()
+        db = get_database()
         user_id = request.args.get('user_id')
         
         # 获取下载统计
@@ -816,7 +815,7 @@ def get_database_stats():
 def cleanup_database():
     """清理数据库中的无效记录"""
     try:
-        db = get_download_db()
+        db = get_database()
         cleaned_count = db.cleanup_invalid_records()
         
         return jsonify({
@@ -837,7 +836,7 @@ def rebuild_database():
         data = request.get_json()
         base_path = data.get('base_path', config.get('save_path', './downloads') + '/media')
         
-        db = get_download_db()
+        db = get_database()
         rebuilt_count = db.rebuild_from_filesystem(base_path)
         
         return jsonify({
@@ -857,7 +856,7 @@ def rebuild_database():
 def serve_video(work_id):
     """直接提供视频文件"""
     try:
-        db = get_download_db()
+        db = get_database()
         work = db.get_work_info(work_id)
         
         if not work:
@@ -884,7 +883,7 @@ def serve_video(work_id):
 def check_file_exists(work_id):
     """检查作品文件是否存在"""
     try:
-        db = get_download_db()
+        db = get_database()
         work = db.get_work_info(work_id)
         
         if not work:
@@ -965,7 +964,7 @@ def static_files(filename):
 def get_subscriptions():
     """获取订阅列表"""
     try:
-        db = get_subscription_db()
+        db = get_database()
         subscriptions = db.get_all_subscriptions()
         stats = db.get_subscription_stats()
         
@@ -991,7 +990,7 @@ def add_subscription():
         if not user_info or not user_info.get('user_id'):
             raise BadRequest('用户信息不完整')
         
-        db = get_subscription_db()
+        db = get_database()
         subscription_id = db.add_subscription(user_info)
         
         return jsonify({
@@ -1011,7 +1010,7 @@ def add_subscription():
 def remove_subscription(user_id):
     """移除订阅"""
     try:
-        db = get_subscription_db()
+        db = get_database()
         success = db.remove_subscription(user_id)
         
         if success:
@@ -1027,7 +1026,7 @@ def update_subscription(user_id):
     """更新订阅设置"""
     try:
         data = request.get_json()
-        db = get_subscription_db()
+        db = get_database()
         success = db.update_subscription(user_id, **data)
         
         if success:
@@ -1045,7 +1044,7 @@ def check_subscription_updates():
         if not config.get('cookie'):
             raise BadRequest('请先配置Cookie')
         
-        db = get_subscription_db()
+        db = get_database()
         subscriptions = db.get_all_subscriptions(enabled_only=True)
         
         # 创建检查任务
@@ -1127,7 +1126,7 @@ def get_subscription_videos(user_id):
     try:
         only_new = request.args.get('only_new', 'false').lower() == 'true'
         
-        db = get_subscription_db()
+        db = get_database()
         subscription = db.get_subscription(user_id)
         
         if not subscription:
@@ -1161,7 +1160,7 @@ def download_subscription_new_videos():
         if not config.get('cookie'):
             raise BadRequest('请先配置Cookie')
         
-        db = get_subscription_db()
+        db = get_database()
         subscription = db.get_subscription(user_id)
         
         if not subscription:

@@ -6,7 +6,7 @@ import openpyxl
 import requests
 from loguru import logger
 from retry import retry
-from .download_db import get_download_db
+from .database import get_database
 
 
 def norm_str(str):
@@ -333,7 +333,7 @@ def download_work(work_info, path, save_choice, force_download=False, use_databa
         stats['total_files'] = 4  # 视频 + 封面 + info.json + detail.txt
     
     # 数据库检查（如果启用）
-    db = get_download_db() if use_database else None
+    db = get_database() if use_database else None
     if db and not force_download:
         if db.is_work_complete(work_id):
             logger.info(f'数据库显示作品已完整下载，跳过: {work_id} - {title}')

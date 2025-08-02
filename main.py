@@ -6,7 +6,7 @@ from loguru import logger
 from dy_apis.douyin_api import DouyinAPI
 from utils.common_util import init
 from utils.data_util import handle_work_info, download_work, save_to_xlsx
-from utils.download_db import get_download_db
+from utils.database import get_database
 
 
 class Data_Spider():
@@ -113,7 +113,7 @@ class Data_Spider():
         }
         
         # 数据库预过滤（如果启用且不强制下载）
-        db = get_download_db() if use_database else None
+        db = get_database() if use_database else None
         works_to_process = []
         
         if db and not force_download:
