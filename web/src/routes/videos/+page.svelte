@@ -18,6 +18,7 @@
   let error: string | null = null;
   let retryCount = 0;
   const maxRetries = 3;
+  let jumpToPage = '';
 
   async function loadWorks() {
     loading = true;
@@ -69,6 +70,21 @@
     if (targetPage >= 1 && targetPage <= Math.ceil(total / limit)) {
       page = targetPage;
       loadWorks();
+    }
+  }
+
+  function jumpToSpecificPage() {
+    const targetPage = parseInt(jumpToPage);
+    if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= Math.ceil(total / limit)) {
+      page = targetPage;
+      jumpToPage = '';
+      loadWorks();
+    }
+  }
+
+  function handleJumpKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      jumpToSpecificPage();
     }
   }
 
@@ -245,43 +261,70 @@
           </span>
         </div>
         
-        <div class="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            on:click={prevPage} 
-            disabled={!hasPrevPage}
-          >
-            <ChevronLeft class="h-4 w-4" />
-            上一页
-          </Button>
-          
-          <div class="flex items-center gap-1">
-            {#each Array.from({length: Math.min(5, totalPages)}, (_, i) => {
-              const start = Math.max(1, page - 2);
-              const end = Math.min(totalPages, start + 4);
-              return start + i;
-            }).filter(p => p <= totalPages) as pageNum}
-              <Button
-                variant={pageNum === page ? "default" : "outline"}
-                size="sm"
-                class="w-8 h-8 p-0"
-                on:click={() => goToPage(pageNum)}
-              >
-                {pageNum}
-              </Button>
-            {/each}
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <!-- 分页按钮 -->
+          <div class="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              on:click={prevPage} 
+              disabled={!hasPrevPage}
+            >
+              <ChevronLeft class="h-4 w-4" />
+              上一页
+            </Button>
+            
+            <div class="flex items-center gap-1">
+              {#each Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+                const start = Math.max(1, page - 2);
+                const end = Math.min(totalPages, start + 4);
+                return start + i;
+              }).filter(p => p <= totalPages) as pageNum}
+                <Button
+                  variant={pageNum === page ? "default" : "outline"}
+                  size="sm"
+                  class="w-8 h-8 p-0"
+                  on:click={() => goToPage(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              {/each}
+            </div>
+            
+            <Button 
+              variant="outline" 
+              size="sm"
+              on:click={nextPage} 
+              disabled={!hasNextPage}
+            >
+              下一页
+              <ChevronRight class="h-4 w-4" />
+            </Button>
           </div>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            on:click={nextPage} 
-            disabled={!hasNextPage}
-          >
-            下一页
-            <ChevronRight class="h-4 w-4" />
-          </Button>
+
+          <!-- 跳转到指定页面 -->
+          <div class="flex items-center gap-1 sm:ml-2 sm:pl-2 sm:border-l">
+            <span class="text-xs text-muted-foreground whitespace-nowrap">跳转到</span>
+            <Input
+              type="number"
+              bind:value={jumpToPage}
+              placeholder="页码"
+              class="w-16 h-8 text-center text-sm"
+              min="1"
+              max={totalPages}
+              on:keydown={handleJumpKeydown}
+            />
+            <span class="text-xs text-muted-foreground whitespace-nowrap">页</span>
+            <Button
+              variant="outline"
+              size="sm"
+              class="h-8 px-2"
+              on:click={jumpToSpecificPage}
+              disabled={!jumpToPage || parseInt(jumpToPage) < 1 || parseInt(jumpToPage) > totalPages}
+            >
+              跳转
+            </Button>
+          </div>
         </div>
       </div>
     {/if}
