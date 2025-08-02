@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This repository contains two distinct tools for video platform management:
 
 1. **Douyin Spider** (Root directory) - A Python-based tool for Douyin (TikTok) data collection
-   - Collects user profiles, video details, and live stream data
+   - Collects user profiles and video details
    - Located in the root directory with Python files
    - NEW: Web UI built with SvelteKit in `web/` directory
    - Flask API server in `app.py`
@@ -27,9 +27,6 @@ npm install
 
 # Run the main spider (CLI mode)
 python main.py
-
-# Run live stream monitoring server
-python dy_live/server.py
 
 # Run Flask API server
 python app.py
@@ -133,7 +130,6 @@ npm run lint
 ### Douyin Spider Architecture
 - **Entry Point**: `main.py` - Main entry for the spider functionality
 - **API Layer**: `dy_apis/douyin_api.py` - Contains all Douyin API interfaces
-- **Live Monitoring**: `dy_live/server.py` - WebSocket server for live stream monitoring
 - **Utilities**: `utils/` - Common utilities for cookies, data processing
 - **Builders**: `builder/` - Request builders for auth, headers, params
 - **Static**: `static/` - Protocol buffer files and JavaScript utilities
@@ -154,7 +150,7 @@ npm run lint
 - **Frontend (Svelte)**:
   - `web/` - SvelteKit application
   - Uses Tailwind CSS and custom UI components
-  - Communicates with backend via REST API and WebSocket
+  - Communicates with backend via REST API
 
 - **Key Features**:
   - Video source management (favorites, UP submissions, watch later, bangumi)
@@ -165,7 +161,7 @@ npm run lint
 ## Important Notes
 
 1. **Authentication**: Both tools require platform cookies for authentication. Configure via:
-   - Douyin: `.env` file with cookies from www.douyin.com and live.douyin.com
+   - Douyin: `.env` file with cookies from www.douyin.com
    - bili-sync: Web interface login or manual cookie configuration
 
 2. **bili-sync Development**: When developing the frontend, changes require:

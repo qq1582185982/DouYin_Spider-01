@@ -233,7 +233,6 @@ if __name__ == '__main__':
     """
         此文件为爬虫的入口文件，可以直接运行
         dy_apis/douyin_apis.py 为爬虫的api文件，包含抖音的全部数据接口，可以继续封装
-        dy_live/server.py 为监听抖音直播的入口文件，可以直接运行
         感谢star和follow
     """
 

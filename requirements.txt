@@ -8,11 +8,7 @@ urllib3
 PyExecJS
 requests
 argparse
-websockets
 beautifulsoup4
-protobuf
-protobuf-to-dict
-websocket-client
 pandas
 flask
 flask-cors

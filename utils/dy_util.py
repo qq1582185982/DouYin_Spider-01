@@ -25,14 +25,10 @@ try:
     node_modules = path.join(basedir, 'node_modules')
     dy_path = path.join(basedir, 'static', 'dy_ab.js')
     dy_js = execjs.compile(open(dy_path, 'r', encoding='utf-8').read(), cwd=node_modules)
-    sign_path = path.join(basedir, 'static', 'dy_live_sign.js')
-    sign_js = execjs.compile(open(sign_path, 'r', encoding='utf-8').read(), cwd=node_modules)
 except:
     node_modules = path.join(basedir, '..', 'node_modules')
     dy_path = path.join(basedir, '..', 'static', 'dy_ab.js')
     dy_js = execjs.compile(open(dy_path, 'r', encoding='utf-8').read(), cwd=node_modules)
-    sign_path = path.join(basedir, '..', 'static', 'dy_live_sign.js')
-    sign_js = execjs.compile(open(sign_path, 'r', encoding='utf-8').read(), cwd=node_modules)
 
 
 def trans_cookies(cookies_str):
@@ -58,10 +54,6 @@ def generate_req_sign(e, priK):
 def generate_a_bogus(query, data=""):
     a_bogus = dy_js.call('get_ab', query, data)
     return a_bogus
-
-
-def generate_signature(roomId, user_unique_id):
-    return sign_js.call('sign', roomId, user_unique_id)
 
 
 # 传递私钥
