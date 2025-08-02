@@ -133,9 +133,16 @@
       if (response.code === 0) {
         showToast('开始检查订阅更新', 'success');
         // 可以跳转到任务页面查看进度
+      } else {
+        showToast(response.message || '检查更新失败', 'error');
       }
-    } catch (error) {
-      handleApiError(error);
+    } catch (error: any) {
+      console.error('检查更新错误:', error);
+      if (error?.code === 400 && error?.message?.includes('Cookie')) {
+        showToast('请先在设置页面配置Cookie', 'error');
+      } else {
+        handleApiError(error);
+      }
     } finally {
       checkingUpdates = false;
     }
@@ -146,9 +153,16 @@
       const response = await api.downloadSubscriptionNewVideos(userId);
       if (response.code === 0) {
         showToast('开始下载新视频', 'success');
+      } else {
+        showToast(response.message || '下载失败', 'error');
       }
-    } catch (error) {
-      handleApiError(error);
+    } catch (error: any) {
+      console.error('下载新视频错误:', error);
+      if (error?.code === 400 && error?.message?.includes('Cookie')) {
+        showToast('请先在设置页面配置Cookie', 'error');
+      } else {
+        handleApiError(error);
+      }
     }
   }
 
