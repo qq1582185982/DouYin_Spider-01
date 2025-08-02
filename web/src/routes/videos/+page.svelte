@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
@@ -159,7 +160,19 @@
     <!-- 使用 CSS Grid 布局，类似参考项目的实现 -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
       {#each works as work}
-        <Card class="group flex h-full min-w-0 flex-col overflow-hidden transition-shadow hover:shadow-md">
+        <div class="group flex h-full min-w-0 flex-col overflow-hidden transition-shadow hover:shadow-md cursor-pointer rounded-lg border bg-card text-card-foreground shadow-sm" 
+              on:click={() => {
+                console.log('Clicking work:', work.work_id);
+                goto(`/video/${work.work_id}`);
+              }}
+              role="button"
+              tabindex="0"
+              on:keydown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  goto(`/video/${work.work_id}`);
+                }
+              }}>
           {#if work.video?.cover}
             <div class="relative overflow-hidden rounded-t-lg">
               <img 
@@ -218,7 +231,7 @@
               </div>
             </div>
           </CardContent>
-        </Card>
+        </div>
       {/each}
     </div>
 

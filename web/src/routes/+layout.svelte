@@ -40,20 +40,24 @@
     }
   }
 
-  onMount(async () => {
-    const cookie = api.getCookie();
-    if (cookie) {
-      try {
-        const response = await api.validateCookie(cookie);
-        hasValidCookie = response.data;
-      } catch (error) {
-        console.error('Failed to validate cookie:', error);
+  onMount(() => {
+    async function init() {
+      const cookie = api.getCookie();
+      if (cookie) {
+        try {
+          const response = await api.validateCookie(cookie);
+          hasValidCookie = response.data;
+        } catch (error) {
+          console.error('Failed to validate cookie:', error);
+        }
       }
+      
+      updateMobileState();
+      updateBodyClass();
+      isInitialized = true;
     }
     
-    updateMobileState();
-    updateBodyClass();
-    isInitialized = true;
+    init();
     
     const handleResize = () => {
       const wasMobile = isMobile;

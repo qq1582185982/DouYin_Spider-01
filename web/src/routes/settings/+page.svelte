@@ -20,7 +20,11 @@
   async function loadConfig() {
     try {
       const response = await api.getConfig();
-      config = response.data;
+      config = {
+        cookie: response.data.cookie || '',
+        save_path: response.data.save_path || '',
+        proxy: response.data.proxy || ''
+      };
       if (config.cookie) {
         // 加载配置后设置Cookie到API客户端
         api.setCookie(config.cookie);

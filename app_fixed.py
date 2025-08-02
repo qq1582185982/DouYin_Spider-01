@@ -460,6 +460,89 @@ def cancel_task(task_id):
     
     return jsonify({'code': 0, 'message': 'success'})
 
+@app.route('/api/works/<work_id>', methods=['GET'])
+def get_work(work_id):
+    """获取单个作品详情"""
+    try:
+        # 从数据库查找作品
+        db = get_download_db()
+        work = db.get_work_info(work_id)
+        
+        if not work:
+            return jsonify({'code': 404, 'message': '作品不存在'}), 404
+        
+        # 加载完整作品信息
+        if work['save_path']:
+            info_file = os.path.join(work['save_path'], 'info.json')
+            if os.path.exists(info_file):
+                with open(info_file, 'r', encoding='utf-8') as f:
+                    full_info = json.load(f)
+                    # 构造前端期望的数据结构
+                    enhanced_work = {
+                        'work_id': full_info['work_id'],
+                        'work_url': full_info['work_url'],
+                        'work_type': full_info['work_type'],
+                        'title': full_info['title'],
+                        'desc': full_info['desc'],
+                        'create_time': full_info['create_time'],
+                        'statistics': {
+                            'play_count': full_info.get('play_count', 0),
+                            'digg_count': full_info['digg_count'],
+                            'comment_count': full_info['comment_count'],
+                            'collect_count': full_info['collect_count'],
+                            'share_count': full_info['share_count'],
+                            'admire_count': full_info.get('admire_count', 0)
+                        },
+                        'author': {
+                            'nickname': full_info['nickname'],
+                            'user_id': full_info['user_id'],
+                            'user_url': full_info['user_url'],
+                            'avatar_thumb': full_info.get('author_avatar', ''),
+                            'user_desc': full_info.get('user_desc', ''),
+                            'following_count': full_info.get('following_count', 0),
+                            'follower_count': full_info.get('follower_count', 0)
+                        },
+                        'video': {
+                            'cover': full_info.get('video_cover', ''),
+                            'play_addr': full_info.get('video_addr', '')
+                        },
+                        'images': full_info.get('images', []),
+                        'topics': full_info.get('topics', []),
+                        'download_time': work['download_time'],
+                        'file_size': work['file_size'],
+                        'is_complete': work['is_complete']
+                    }
+                    
+                    return jsonify({
+                        'code': 0,
+                        'message': 'success',
+                        'data': enhanced_work
+                    })
+        
+        # 如果没有 info.json，返回基本信息
+        basic_work = {
+            'work_id': work['work_id'],
+            'title': work['title'],
+            'work_type': work['work_type'],
+            'statistics': {'digg_count': 0, 'play_count': 0, 'comment_count': 0, 'collect_count': 0, 'share_count': 0},
+            'author': {'nickname': work['nickname'], 'user_id': '', 'avatar_thumb': ''},
+            'video': {'cover': '', 'play_addr': ''},
+            'create_time': 0,
+            'download_time': work['download_time'],
+            'file_size': work['file_size'],
+            'is_complete': work['is_complete']
+        }
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': basic_work
+        })
+        
+    except Exception as e:
+        logger.error(f"获取作品详情失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
 @app.route('/api/works', methods=['GET'])
 def get_works():
     """获取作品列表"""
