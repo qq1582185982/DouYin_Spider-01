@@ -91,43 +91,45 @@
       </CardContent>
     </Card>
   {:else}
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="flex flex-wrap gap-4 justify-start">
       {#each works as work}
-        <Card class="overflow-hidden">
+        <Card class="overflow-hidden flex-shrink-0">
           {#if work.video?.cover}
-            <div class="h-48 w-full bg-gray-100 flex items-center justify-center overflow-hidden">
+            <div class="h-64 w-48 bg-gray-100 flex items-center justify-center overflow-hidden">
               <img 
                 src={work.video.cover} 
                 alt={work.title}
-                class="h-full w-auto object-cover"
+                class="h-full w-full object-cover"
               />
             </div>
           {/if}
-          <CardHeader>
-            <CardTitle class="line-clamp-2 text-base">{work.title || work.desc}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div class="space-y-2 text-sm">
-              <div class="flex items-center gap-2 text-muted-foreground">
-                <User class="h-4 w-4" />
-                <span>{work.author.nickname}</span>
-              </div>
-              <div class="flex items-center gap-2 text-muted-foreground">
-                <Calendar class="h-4 w-4" />
-                <span>{formatDate(work.create_time)}</span>
-              </div>
-              <div class="flex items-center gap-4 text-muted-foreground">
-                <div class="flex items-center gap-1">
-                  <Eye class="h-4 w-4" />
-                  <span>{formatNumber(work.statistics.play_count)}</span>
+          <div class="w-48">
+            <CardHeader class="pb-2">
+              <CardTitle class="line-clamp-2 text-sm leading-tight">{work.title || work.desc || '无标题'}</CardTitle>
+            </CardHeader>
+            <CardContent class="pt-0">
+              <div class="space-y-2 text-xs">
+                <div class="flex items-center gap-1 text-muted-foreground">
+                  <User class="h-3 w-3" />
+                  <span class="truncate">{work.author.nickname}</span>
                 </div>
-                <div class="flex items-center gap-1">
-                  <span>❤️</span>
-                  <span>{formatNumber(work.statistics.digg_count)}</span>
+                <div class="flex items-center gap-1 text-muted-foreground">
+                  <Calendar class="h-3 w-3" />
+                  <span>{formatDate(work.create_time)}</span>
+                </div>
+                <div class="flex items-center justify-between text-muted-foreground">
+                  <div class="flex items-center gap-1">
+                    <Eye class="h-3 w-3" />
+                    <span>{formatNumber(work.statistics.play_count)}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span>❤️</span>
+                    <span>{formatNumber(work.statistics.digg_count)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
+            </CardContent>
+          </div>
         </Card>
       {/each}
     </div>
