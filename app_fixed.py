@@ -469,7 +469,8 @@ def get_works():
     try:
         # 从数据库读取基本数据
         db = get_download_db()
-        recent_works = db.get_recent_downloads(limit)
+        offset = (page - 1) * limit
+        recent_works = db.get_recent_downloads(limit, offset)
         
         # 为每个作品加载完整信息
         enhanced_works = []
@@ -548,12 +549,15 @@ def get_works():
                     'is_complete': work['is_complete']
                 })
         
+        # 获取总数
+        total_count = db.get_total_works_count()
+        
         return jsonify({
             'code': 0,
             'message': 'success',
             'data': {
                 'items': enhanced_works,
-                'total': len(enhanced_works),
+                'total': total_count,
                 'page': page,
                 'limit': limit
             }

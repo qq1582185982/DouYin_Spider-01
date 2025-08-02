@@ -222,7 +222,7 @@ class DownloadDatabase:
                 'total_files': result[3] or 0
             }
     
-    def get_recent_downloads(self, limit: int = 50) -> List[Dict]:
+    def get_recent_downloads(self, limit: int = 50, offset: int = 0) -> List[Dict]:
         """获取最近下载记录"""
         with sqlite3.connect(self.db_path, timeout=30) as conn:
             conn.row_factory = sqlite3.Row
@@ -230,10 +230,16 @@ class DownloadDatabase:
                 SELECT work_id, nickname, title, work_type, download_time, file_size, is_complete
                 FROM works 
                 ORDER BY download_time DESC 
-                LIMIT ?
-            ''', (limit,))
+                LIMIT ? OFFSET ?
+            ''', (limit, offset))
             
             return [dict(row) for row in cursor.fetchall()]
+    
+    def get_total_works_count(self) -> int:
+        """获取总作品数量"""
+        with sqlite3.connect(self.db_path, timeout=30) as conn:
+            cursor = conn.execute("SELECT COUNT(*) FROM works")
+            return cursor.fetchone()[0]
     
     def cleanup_invalid_records(self) -> int:
         """清理无效记录（对应文件已删除）"""

@@ -3,7 +3,7 @@
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
-  import { Video, Search, Calendar, User, Eye } from 'lucide-svelte';
+  import { Video, Search, Calendar, User, Eye, ChevronLeft, ChevronRight } from 'lucide-svelte';
   import api from '$lib/api';
   import { formatDate, formatNumber } from '$lib/utils';
   import type { WorkInfo } from '$lib/types';
@@ -28,9 +28,34 @@
     }
   }
 
+  function nextPage() {
+    if (page * limit < total) {
+      page += 1;
+      loadWorks();
+    }
+  }
+
+  function prevPage() {
+    if (page > 1) {
+      page -= 1;
+      loadWorks();
+    }
+  }
+
+  function goToPage(targetPage: number) {
+    if (targetPage >= 1 && targetPage <= Math.ceil(total / limit)) {
+      page = targetPage;
+      loadWorks();
+    }
+  }
+
   onMount(() => {
     loadWorks();
   });
+
+  $: totalPages = Math.ceil(total / limit);
+  $: hasNextPage = page < totalPages;
+  $: hasPrevPage = page > 1;
 </script>
 
 <svelte:head>
@@ -106,5 +131,53 @@
         </Card>
       {/each}
     </div>
+
+    <!-- 分页组件 -->
+    {#if totalPages > 1}
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-muted-foreground">
+          显示第 {(page - 1) * limit + 1} - {Math.min(page * limit, total)} 条，共 {total} 条
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            on:click={prevPage} 
+            disabled={!hasPrevPage}
+          >
+            <ChevronLeft class="h-4 w-4" />
+            上一页
+          </Button>
+          
+          <div class="flex items-center gap-1">
+            {#each Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+              const start = Math.max(1, page - 2);
+              const end = Math.min(totalPages, start + 4);
+              return start + i;
+            }).filter(p => p <= totalPages) as pageNum}
+              <Button
+                variant={pageNum === page ? "default" : "outline"}
+                size="sm"
+                class="w-8 h-8 p-0"
+                on:click={() => goToPage(pageNum)}
+              >
+                {pageNum}
+              </Button>
+            {/each}
+          </div>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            on:click={nextPage} 
+            disabled={!hasNextPage}
+          >
+            下一页
+            <ChevronRight class="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    {/if}
   {/if}
 </div>
