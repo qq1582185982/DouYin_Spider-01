@@ -383,10 +383,11 @@
                     size="sm"
                     variant="default"
                     on:click={() => downloadNewVideos(subscription.user_id)}
-                    class="h-8"
+                    class="h-8 gap-1"
                     title="下载新视频"
                   >
                     <Download class="h-4 w-4" />
+                    <span class="text-xs">下载</span>
                   </Button>
                   <Button
                     size="sm"

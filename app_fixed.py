@@ -1074,6 +1074,7 @@ def check_subscription_updates():
                     try:
                         # 获取用户最新视频
                         work_list = DouyinAPI.get_user_all_work_info(auth, sub['user_url'])
+                        logger.info(f"获取到 {sub['nickname']} 的 {len(work_list)} 个作品")
                         
                         # 更新用户信息
                         user_info = DouyinAPI.get_user_info(auth, sub['user_url'])
@@ -1085,7 +1086,7 @@ def check_subscription_updates():
                         )
                         
                         # 记录新视频
-                        for work in work_list[:10]:  # 只检查最新的10个视频
+                        for work in work_list:  # 检查所有视频
                             if db.add_subscription_video(sub['id'], work):
                                 new_videos_count += 1
                         
@@ -1152,6 +1153,7 @@ def download_subscription_new_videos():
     try:
         data = request.get_json()
         user_id = data.get('user_id')
+        max_count = data.get('max_count', None)  # 最大下载数量
         
         if not user_id:
             raise BadRequest('user_id is required')
@@ -1171,12 +1173,21 @@ def download_subscription_new_videos():
         if not new_videos:
             return jsonify({'code': 0, 'message': '没有新视频需要下载'})
         
+        logger.info(f"订阅 {subscription['nickname']} 有 {len(new_videos)} 个新视频待下载")
+        
         # 如果设置了选择视频，过滤视频列表
         selected_videos = subscription.get('selected_videos', [])
         if selected_videos:
             aweme_ids = [v['aweme_id'] for v in new_videos if v['aweme_id'] in selected_videos]
         else:
             aweme_ids = [v['aweme_id'] for v in new_videos]
+        
+        # 如果设置了最大下载数量，限制下载数量
+        if max_count and max_count > 0:
+            aweme_ids = aweme_ids[:max_count]
+            logger.info(f"限制下载数量为 {max_count} 个")
+        
+        logger.info(f"准备下载 {len(aweme_ids)} 个视频")
         
         # 创建下载任务
         task_id = str(uuid.uuid4())
