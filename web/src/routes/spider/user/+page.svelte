@@ -257,7 +257,7 @@
             <p class="text-muted-foreground">加载中...</p>
           </div>
         {:else}
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="grid gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {#each userVideos as video}
               <div
                 class="relative cursor-pointer rounded-lg border transition-colors {selectedVideos.has(video.aweme_id) ? 'border-primary bg-primary/5' : ''}"
@@ -265,8 +265,8 @@
               >
                 <!-- 选中标记 -->
                 {#if selectedVideos.has(video.aweme_id)}
-                  <div class="absolute right-2 top-2 z-10">
-                    <CheckCircle class="h-6 w-6 text-primary" />
+                  <div class="absolute right-1 top-1 z-10">
+                    <CheckCircle class="h-5 w-5 text-primary" />
                   </div>
                 {/if}
 
@@ -281,15 +281,15 @@
                   {/if}
                   
                   <!-- 类型标记 -->
-                  <div class="absolute left-2 top-2">
+                  <div class="absolute left-1 top-1">
                     {#if video.aweme_type === 68}
-                      <div class="flex items-center gap-1 rounded bg-black/60 px-2 py-1 text-xs text-white">
-                        <Image class="h-3 w-3" />
+                      <div class="flex items-center gap-0.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                        <Image class="h-2.5 w-2.5" />
                         图文
                       </div>
                     {:else}
-                      <div class="flex items-center gap-1 rounded bg-black/60 px-2 py-1 text-xs text-white">
-                        <Video class="h-3 w-3" />
+                      <div class="flex items-center gap-0.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                        <Video class="h-2.5 w-2.5" />
                         {formatDuration(video.duration / 1000)}
                       </div>
                     {/if}
@@ -297,15 +297,14 @@
                 </div>
 
                 <!-- 信息 -->
-                <div class="p-3">
-                  <p class="mb-2 line-clamp-2 text-sm">
+                <div class="p-2">
+                  <p class="mb-1 line-clamp-2 text-xs">
                     {video.desc || '无标题'}
                   </p>
-                  <div class="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{formatDate(video.create_time)}</span>
-                    <div class="flex gap-2">
-                      <span>❤ {formatNumber(video.statistics.digg_count)}</span>
-                      <span>💬 {formatNumber(video.statistics.comment_count)}</span>
+                  <div class="flex items-center justify-between text-[10px] text-muted-foreground">
+                    <span>{formatDate(video.create_time).slice(5)}</span>
+                    <div class="flex gap-1">
+                      <span>❤{formatNumber(video.statistics.digg_count)}</span>
                     </div>
                   </div>
                 </div>
