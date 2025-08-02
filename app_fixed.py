@@ -4,6 +4,7 @@ import json
 import uuid
 import time
 import threading
+from datetime import datetime
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from werkzeug.exceptions import BadRequest
@@ -14,6 +15,7 @@ from loguru import logger
 from main import Data_Spider
 from builder.auth import DouyinAuth
 from utils.download_db import get_download_db
+from utils.subscription_db import get_subscription_db
 
 app = Flask(__name__)
 CORS(app)
@@ -958,6 +960,291 @@ def static_files(filename):
     except Exception as e:
         logger.error(f"提供静态文件失败: {filename}, 错误: {e}")
         return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
+
+@app.route('/api/subscriptions', methods=['GET'])
+def get_subscriptions():
+    """获取订阅列表"""
+    try:
+        db = get_subscription_db()
+        subscriptions = db.get_all_subscriptions()
+        stats = db.get_subscription_stats()
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'subscriptions': subscriptions,
+                'stats': stats
+            }
+        })
+    except Exception as e:
+        logger.error(f"获取订阅列表失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/subscriptions', methods=['POST'])
+def add_subscription():
+    """添加订阅"""
+    try:
+        data = request.get_json()
+        user_info = data.get('user_info')
+        
+        if not user_info or not user_info.get('user_id'):
+            raise BadRequest('用户信息不完整')
+        
+        db = get_subscription_db()
+        subscription_id = db.add_subscription(user_info)
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'subscription_id': subscription_id
+            }
+        })
+    except BadRequest as e:
+        return jsonify({'code': 400, 'message': str(e)}), 400
+    except Exception as e:
+        logger.error(f"添加订阅失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/subscriptions/<user_id>', methods=['DELETE'])
+def remove_subscription(user_id):
+    """移除订阅"""
+    try:
+        db = get_subscription_db()
+        success = db.remove_subscription(user_id)
+        
+        if success:
+            return jsonify({'code': 0, 'message': 'success'})
+        else:
+            return jsonify({'code': 404, 'message': '订阅不存在'}), 404
+    except Exception as e:
+        logger.error(f"移除订阅失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/subscriptions/<user_id>', methods=['PUT'])
+def update_subscription(user_id):
+    """更新订阅设置"""
+    try:
+        data = request.get_json()
+        db = get_subscription_db()
+        success = db.update_subscription(user_id, **data)
+        
+        if success:
+            return jsonify({'code': 0, 'message': 'success'})
+        else:
+            return jsonify({'code': 404, 'message': '订阅不存在'}), 404
+    except Exception as e:
+        logger.error(f"更新订阅失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/subscriptions/check-updates', methods=['POST'])
+def check_subscription_updates():
+    """检查订阅更新"""
+    try:
+        if not config.get('cookie'):
+            raise BadRequest('请先配置Cookie')
+        
+        db = get_subscription_db()
+        subscriptions = db.get_all_subscriptions(enabled_only=True)
+        
+        # 创建检查任务
+        task_id = str(uuid.uuid4())
+        task = {
+            'id': task_id,
+            'type': 'subscription_check',
+            'status': 'pending',
+            'progress': 0,
+            'total': len(subscriptions),
+            'created_at': int(time.time()),
+            'updated_at': int(time.time())
+        }
+        tasks[task_id] = task
+        
+        # 在后台线程中执行检查
+        def run_check():
+            try:
+                task['status'] = 'running'
+                task['updated_at'] = int(time.time())
+                
+                from dy_apis.douyin_api import DouyinAPI
+                new_videos_count = 0
+                
+                for idx, sub in enumerate(subscriptions):
+                    try:
+                        # 获取用户最新视频
+                        work_list = DouyinAPI.get_user_all_work_info(auth, sub['user_url'])
+                        
+                        # 更新用户信息
+                        user_info = DouyinAPI.get_user_info(auth, sub['user_url'])
+                        db.update_subscription(
+                            sub['user_id'],
+                            follower_count=user_info['user'].get('follower_count', 0),
+                            aweme_count=len(work_list),
+                            last_check_time=datetime.now().isoformat()
+                        )
+                        
+                        # 记录新视频
+                        for work in work_list[:10]:  # 只检查最新的10个视频
+                            if db.add_subscription_video(sub['id'], work):
+                                new_videos_count += 1
+                        
+                        task['progress'] = idx + 1
+                        task['updated_at'] = int(time.time())
+                        
+                        # 避免请求过快
+                        time.sleep(2)
+                    except Exception as e:
+                        logger.error(f"检查订阅 {sub['nickname']} 失败: {e}")
+                
+                task['status'] = 'completed'
+                task['result'] = {
+                    'checked_count': len(subscriptions),
+                    'new_videos_count': new_videos_count
+                }
+                logger.info(f"订阅检查完成，发现 {new_videos_count} 个新视频")
+                
+            except Exception as e:
+                logger.error(f"订阅检查任务失败: {e}")
+                task['status'] = 'failed'
+                task['error'] = str(e)
+            finally:
+                task['updated_at'] = int(time.time())
+        
+        threading.Thread(target=run_check).start()
+        
+        return jsonify({'code': 0, 'message': 'success', 'data': task})
+    except BadRequest as e:
+        return jsonify({'code': 400, 'message': str(e)}), 400
+    except Exception as e:
+        logger.error(f"启动订阅检查失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/subscriptions/<user_id>/videos', methods=['GET'])
+def get_subscription_videos(user_id):
+    """获取订阅的视频列表"""
+    try:
+        only_new = request.args.get('only_new', 'false').lower() == 'true'
+        
+        db = get_subscription_db()
+        subscription = db.get_subscription(user_id)
+        
+        if not subscription:
+            return jsonify({'code': 404, 'message': '订阅不存在'}), 404
+        
+        videos = db.get_subscription_videos(subscription['id'], only_new=only_new)
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'subscription': subscription,
+                'videos': videos
+            }
+        })
+    except Exception as e:
+        logger.error(f"获取订阅视频列表失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/subscriptions/download-new', methods=['POST'])
+def download_subscription_new_videos():
+    """下载订阅的新视频"""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        
+        if not user_id:
+            raise BadRequest('user_id is required')
+        
+        if not config.get('cookie'):
+            raise BadRequest('请先配置Cookie')
+        
+        db = get_subscription_db()
+        subscription = db.get_subscription(user_id)
+        
+        if not subscription:
+            return jsonify({'code': 404, 'message': '订阅不存在'}), 404
+        
+        # 获取新视频
+        new_videos = db.get_subscription_videos(subscription['id'], only_new=True)
+        
+        if not new_videos:
+            return jsonify({'code': 0, 'message': '没有新视频需要下载'})
+        
+        # 如果设置了选择视频，过滤视频列表
+        selected_videos = subscription.get('selected_videos', [])
+        if selected_videos:
+            aweme_ids = [v['aweme_id'] for v in new_videos if v['aweme_id'] in selected_videos]
+        else:
+            aweme_ids = [v['aweme_id'] for v in new_videos]
+        
+        # 创建下载任务
+        task_id = str(uuid.uuid4())
+        task = {
+            'id': task_id,
+            'type': 'subscription_download',
+            'status': 'pending',
+            'url': subscription['user_url'],
+            'progress': 0,
+            'total': len(aweme_ids),
+            'created_at': int(time.time()),
+            'updated_at': int(time.time())
+        }
+        tasks[task_id] = task
+        
+        # 在后台线程中执行下载
+        def run_download():
+            try:
+                task['status'] = 'running'
+                task['updated_at'] = int(time.time())
+                
+                # 使用配置的保存路径
+                save_path = config.get('save_path', './downloads')
+                spider_base_path = {
+                    'media': os.path.join(save_path, 'media'),
+                    'excel': os.path.join(save_path, 'excel')
+                }
+                
+                # 调用爬虫下载指定视频
+                if data_spider and auth:
+                    download_stats = data_spider.spider_user_all_work(
+                        auth,
+                        subscription['user_url'],
+                        spider_base_path,
+                        'media',  # 只下载媒体文件
+                        f"{subscription['nickname']}_{subscription['user_id']}",
+                        proxies=None,
+                        force_download=False,
+                        selected_videos=aweme_ids
+                    )
+                    
+                    # 标记视频为已下载
+                    for aweme_id in aweme_ids:
+                        db.mark_video_downloaded(aweme_id)
+                    
+                    task['status'] = 'completed'
+                    task['progress'] = len(aweme_ids)
+                    task['download_stats'] = download_stats
+                    logger.info(f"订阅下载完成: {subscription['nickname']}")
+                else:
+                    task['status'] = 'failed'
+                    task['error'] = '爬虫未初始化'
+                    
+            except Exception as e:
+                logger.error(f"订阅下载任务失败: {e}")
+                task['status'] = 'failed'
+                task['error'] = str(e)
+            finally:
+                task['updated_at'] = int(time.time())
+        
+        threading.Thread(target=run_download).start()
+        
+        return jsonify({'code': 0, 'message': 'success', 'data': task})
+    except BadRequest as e:
+        return jsonify({'code': 400, 'message': str(e)}), 400
+    except Exception as e:
+        logger.error(f"启动订阅下载失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
 
 @app.route('/')
 def index():
