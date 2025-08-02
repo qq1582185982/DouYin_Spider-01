@@ -21,6 +21,8 @@
   let error: string | null = null;
   let retryCount = 0;
   const maxRetries = 3;
+  let currentCardsPerRow = 1;
+  let currentRows = 1;
 
   async function loadWorks() {
     loading = true;
@@ -158,11 +160,49 @@
       const headerHeight = isMobile ? 160 : (isTablet ? 180 : 200);
       const paginationHeight = isMobile ? 100 : 80;
       const availableHeight = window.innerHeight - headerHeight - paginationHeight;
-      const rows = Math.max(1, Math.floor(availableHeight / cardHeight));
+      const maxRows = Math.max(1, Math.floor(availableHeight / cardHeight));
       
-      // 根据设备类型设置最小显示数量
-      const minItems = isMobile ? 2 : (isTablet ? 6 : 4);
-      const newLimit = Math.max(minItems, cardsPerRow * rows);
+      // 智能计算最佳显示数量，确保布局均匀
+      let newLimit;
+      
+      // 计算理想的行数范围
+      const minRows = isMobile ? 1 : 2;
+      const maxPossibleRows = Math.max(1, Math.floor(availableHeight / cardHeight));
+      
+      // 根据设备类型设置推荐行数
+      let recommendedRows;
+      if (isMobile) {
+        recommendedRows = Math.min(4, maxPossibleRows); // 移动端最多4行
+      } else if (isTablet) {
+        recommendedRows = Math.min(4, maxPossibleRows); // 平板最多4行
+      } else {
+        recommendedRows = Math.min(5, maxPossibleRows); // 桌面端最多5行
+      }
+      
+      // 确保至少有最小行数
+      const actualRows = Math.max(minRows, recommendedRows);
+      
+      // 计算完整行的布局（优先显示完整行）
+      newLimit = cardsPerRow * actualRows;
+      
+      // 设置设备相关的最小和最大值
+      const minItems = isMobile ? cardsPerRow : cardsPerRow * 2; // 至少1行（移动端）或2行
+      const maxItems = isMobile ? cardsPerRow * 4 : (isTablet ? cardsPerRow * 4 : cardsPerRow * 5);
+      
+      // 应用限制
+      newLimit = Math.max(minItems, Math.min(maxItems, newLimit));
+      
+      // 确保结果是完整行的倍数（避免不均匀布局）
+      newLimit = Math.floor(newLimit / cardsPerRow) * cardsPerRow;
+      
+      // 如果结果为0，至少显示一行
+      if (newLimit === 0) {
+        newLimit = cardsPerRow;
+      }
+      
+      // 保存当前布局信息
+      currentCardsPerRow = cardsPerRow;
+      currentRows = Math.floor(newLimit / cardsPerRow);
       
       console.log('Layout calculation:', {
         deviceType: isMobile ? 'mobile' : (isTablet ? 'tablet' : 'desktop'),
@@ -172,16 +212,18 @@
         availableHeight,
         cardWidth,
         cardHeight,
-        cardsPerRow,
-        rows,
-        newLimit
+        cardsPerRow: currentCardsPerRow,
+        rows: currentRows,
+        newLimit,
+        isCompleteGrid: newLimit % currentCardsPerRow === 0
       });
       
       if (newLimit !== limit) {
         const oldLimit = limit;
         limit = newLimit;
         page = 1; // 重置到第一页
-        console.log(`Limit changed from ${oldLimit} to ${newLimit}`);
+        const completeRows = Math.floor(newLimit / cardsPerRow);
+        console.log(`Limit changed from ${oldLimit} to ${newLimit} (${completeRows} complete rows of ${cardsPerRow} cards each)`);
         if (works.length > 0) {
           loadWorks(); // 重新加载数据
         }
@@ -255,6 +297,9 @@
                 class:bg-blue-500={isTablet}
                 class:bg-orange-500={isMobile}></span>
           {isMobile ? "移动" : isTablet ? "平板" : "桌面"}模式
+          <span class="ml-2 opacity-75">
+            {currentCardsPerRow}列 × {currentRows}行
+          </span>
         </div>
       {/if}
     </div>
