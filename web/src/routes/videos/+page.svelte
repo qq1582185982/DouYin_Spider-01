@@ -14,6 +14,7 @@
   let total = 0;
   let limit = 20;
   let searchQuery = '';
+  let containerWidth = 0;
 
   async function loadWorks() {
     loading = true;
@@ -50,8 +51,67 @@
   }
 
   onMount(() => {
+    updateLimit();
     loadWorks();
+    
+    // 防抖处理窗口大小变化
+    let resizeTimeout: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        updateLimit();
+      }, 300); // 300ms防抖
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
   });
+
+  function updateLimit() {
+    if (typeof window !== 'undefined') {
+      // 计算可显示的卡片数量
+      // 卡片宽度 192px (w-48) + gap 16px = 208px per card
+      const cardWidth = 208;
+      const containerPadding = 96; // 容器左右padding + 页面边距
+      const availableWidth = window.innerWidth - containerPadding;
+      const cardsPerRow = Math.max(1, Math.floor(availableWidth / cardWidth));
+      
+      // 计算可显示的行数
+      // 卡片高度: 封面256px + 内容区域约120px = 376px
+      // 加上gap 16px = 392px per row
+      const cardRowHeight = 392;
+      const headerHeight = 200; // header、搜索栏等
+      const paginationHeight = 80; // 分页组件
+      const availableHeight = window.innerHeight - headerHeight - paginationHeight;
+      const rows = Math.max(1, Math.floor(availableHeight / cardRowHeight));
+      
+      const newLimit = Math.max(4, cardsPerRow * rows); // 最少显示4个
+      
+      console.log('Layout calculation:', {
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+        availableWidth,
+        availableHeight,
+        cardsPerRow,
+        rows,
+        newLimit
+      });
+      
+      if (newLimit !== limit) {
+        const oldLimit = limit;
+        limit = newLimit;
+        page = 1; // 重置到第一页
+        console.log(`Limit changed from ${oldLimit} to ${newLimit}`);
+        if (works.length > 0) {
+          loadWorks(); // 重新加载数据
+        }
+      }
+    }
+  }
 
   $: totalPages = Math.ceil(total / limit);
   $: hasNextPage = page < totalPages;
@@ -68,7 +128,7 @@
     <p class="text-muted-foreground">查看所有已爬取的视频</p>
   </div>
 
-  <div class="flex gap-4">
+  <div class="flex gap-4 items-center">
     <div class="flex-1">
       <Input
         type="search"
@@ -77,6 +137,14 @@
         class="max-w-md"
       />
     </div>
+    <Button 
+      variant="outline" 
+      size="sm" 
+      on:click={updateLimit}
+      class="text-xs"
+    >
+      调整布局
+    </Button>
   </div>
 
   {#if loading}
@@ -139,6 +207,9 @@
       <div class="flex items-center justify-between">
         <div class="text-sm text-muted-foreground">
           显示第 {(page - 1) * limit + 1} - {Math.min(page * limit, total)} 条，共 {total} 条
+          <span class="ml-2 text-xs opacity-70">
+            (每页 {limit} 个)
+          </span>
         </div>
         
         <div class="flex items-center gap-2">
