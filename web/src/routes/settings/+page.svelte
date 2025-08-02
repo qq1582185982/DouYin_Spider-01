@@ -69,12 +69,15 @@
     }
   }
 
+  // 移除前端的路径转换，让后端根据操作系统处理
+
   async function saveConfig() {
     saveLoading = true;
     message = '';
 
     try {
       await api.updateConfig(config);
+      
       if (config.cookie) {
         // 保存后设置Cookie到API客户端
         api.setCookie(config.cookie);
@@ -183,7 +186,7 @@
           id="save_path"
           type="text"
           bind:value={config.save_path}
-          placeholder="例如：D:/DouYin/Downloads"
+          placeholder="例如：D:/DouYin/Downloads 或 /home/user/downloads"
         />
         <p class="mt-1 text-xs text-muted-foreground">
           爬取的视频和图片将保存到此目录
@@ -191,7 +194,8 @@
         <div class="mt-2 rounded-md bg-blue-50 p-3 text-xs">
           <p class="font-medium text-blue-900 mb-1">路径格式说明：</p>
           <ul class="space-y-1 text-blue-700">
-            <li>• Windows: <code class="bg-blue-100 px-1 rounded">D:/Downloads</code> 或 <code class="bg-blue-100 px-1 rounded">D:\Downloads</code></li>
+            <li>• Windows: <code class="bg-blue-100 px-1 rounded">D:\Downloads</code> 或 <code class="bg-blue-100 px-1 rounded">D:/Downloads</code></li>
+            <li>• Linux/Mac: <code class="bg-blue-100 px-1 rounded">/home/user/downloads</code></li>
             <li>• 相对路径: <code class="bg-blue-100 px-1 rounded">./downloads</code></li>
             <li>• 路径会自动创建，无需手动创建文件夹</li>
           </ul>

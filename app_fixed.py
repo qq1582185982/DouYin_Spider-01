@@ -204,6 +204,11 @@ def update_config():
     try:
         data = request.get_json()
         
+        # 规范化路径（根据操作系统）
+        if 'save_path' in data and data['save_path']:
+            # 使用 os.path.normpath 自动处理路径分隔符
+            data['save_path'] = os.path.normpath(data['save_path'])
+        
         # 更新内存中的配置
         config.update(data)
         
