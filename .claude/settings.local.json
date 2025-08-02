@@ -8,7 +8,8 @@
       "Bash(ls:*)",
       "Bash(xxd:*)",
       "Bash(rm:*)",
-      "Bash(del test_image_fix.py)"
+      "Bash(del test_image_fix.py)",
+      "mcp__unlimited-fetch__unlimited_fetch"
     ],
     "deny": []
   }

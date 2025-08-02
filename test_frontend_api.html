@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DouYin Spider - API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .video-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 16px;
+        }
+        .video-cover {
+            width: 150px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            background-color: #eee;
+        }
+        .video-info {
+            flex: 1;
+        }
+        .video-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .video-author {
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .video-stats {
+            display: flex;
+            gap: 16px;
+            color: #888;
+            font-size: 14px;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>DouYin Spider - 视频列表测试</h1>
+    <div id="content">
+        <div class="loading">加载中...</div>
+    </div>
+
+    <script>
+        async function loadVideos() {
+            try {
+                const response = await fetch('http://localhost:8000/api/works?limit=5');
+                const result = await response.json();
+                
+                if (result.code === 0) {
+                    displayVideos(result.data.items);
+                } else {
+                    showError('API错误: ' + result.message);
+                }
+            } catch (error) {
+                showError('网络错误: ' + error.message);
+            }
+        }
+
+        function displayVideos(videos) {
+            const content = document.getElementById('content');
+            
+            if (videos.length === 0) {
+                content.innerHTML = '<div class="loading">暂无视频数据</div>';
+                return;
+            }
+
+            const videosHtml = videos.map(video => `
+                <div class="video-card">
+                    <img class="video-cover" 
+                         src="${video.video?.cover || ''}" 
+                         alt="${video.title || '无标题'}"
+                         onerror="this.style.display='none'">
+                    <div class="video-info">
+                        <div class="video-title">${video.title || video.desc || '无标题'}</div>
+                        <div class="video-author">
+                            👤 ${video.author?.nickname || '未知用户'}
+                        </div>
+                        <div class="video-stats">
+                            <div class="stat-item">
+                                👁️ ${formatNumber(video.statistics?.play_count || 0)}
+                            </div>
+                            <div class="stat-item">
+                                ❤️ ${formatNumber(video.statistics?.digg_count || 0)}
+                            </div>
+                            <div class="stat-item">
+                                💬 ${formatNumber(video.statistics?.comment_count || 0)}
+                            </div>
+                            <div class="stat-item">
+                                🔄 ${formatNumber(video.statistics?.share_count || 0)}
+                            </div>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 12px; color: #999;">
+                            作品ID: ${video.work_id} | 类型: ${video.work_type} | 
+                            文件大小: ${formatBytes(video.file_size || 0)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            content.innerHTML = videosHtml;
+        }
+
+        function showError(message) {
+            const content = document.getElementById('content');
+            content.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        function formatNumber(num) {
+            if (num >= 10000) {
+                return (num / 10000).toFixed(1) + 'w';
+            }
+            return num.toString();
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 页面加载时获取视频列表
+        loadVideos();
+    </script>
+</body>
+</html>

@@ -4,7 +4,7 @@ import json
 import uuid
 import time
 import threading
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from werkzeug.exceptions import BadRequest
 from dotenv import load_dotenv
@@ -13,6 +13,7 @@ from loguru import logger
 # 导入实际的爬虫和认证类
 from main import Data_Spider
 from builder.auth import DouyinAuth
+from utils.download_db import get_download_db
 
 app = Flask(__name__)
 CORS(app)
@@ -65,6 +66,22 @@ def save_config(config_data):
 
 # 加载配置
 config = load_config()
+
+def _get_local_cover_url(save_path):
+    """获取本地封面图片URL"""
+    if not save_path:
+        return ''
+    
+    cover_file = os.path.join(save_path, 'cover.jpg')
+    if os.path.exists(cover_file):
+        # 将绝对路径转换为相对URL路径
+        # 例如: D:\path\downloads\media\user\work\cover.jpg -> /media/user/work/cover.jpg
+        relative_path = os.path.relpath(cover_file, os.path.join(os.getcwd(), 'downloads'))
+        # 转换Windows路径分隔符为URL分隔符
+        url_path = relative_path.replace('\\', '/')
+        return f'/static/{url_path}'
+    
+    return ''
 
 # 初始化
 data_spider = None
@@ -383,7 +400,8 @@ def spider_search():
                         options.get('content_type', '0'),
                         excel_name='',
                         proxies=None,
-                        force_download=force_download
+                        force_download=force_download,
+                        use_database=True
                     )
                     
                     task['status'] = 'completed'
@@ -448,19 +466,183 @@ def get_works():
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 20))
     
-    # 从excel目录读取数据
-    works = []
-    
-    return jsonify({
-        'code': 0,
-        'message': 'success',
-        'data': {
-            'items': works,
-            'total': 0,
-            'page': page,
-            'limit': limit
-        }
-    })
+    try:
+        # 从数据库读取基本数据
+        db = get_download_db()
+        recent_works = db.get_recent_downloads(limit)
+        
+        # 为每个作品加载完整信息
+        enhanced_works = []
+        for work in recent_works:
+            try:
+                # 根据work_id查找对应的info.json文件
+                work_info = db.get_work_info(work['work_id'])
+                if work_info and work_info['save_path']:
+                    info_file = os.path.join(work_info['save_path'], 'info.json')
+                    if os.path.exists(info_file):
+                        with open(info_file, 'r', encoding='utf-8') as f:
+                            full_info = json.load(f)
+                            # 构造前端期望的数据结构
+                            enhanced_work = {
+                                'work_id': full_info['work_id'],
+                                'work_url': full_info['work_url'],
+                                'work_type': full_info['work_type'],
+                                'title': full_info['title'],
+                                'desc': full_info['desc'],
+                                'create_time': full_info['create_time'],
+                                'statistics': {
+                                    'play_count': full_info.get('play_count', 0),  # 播放量可能不存在
+                                    'digg_count': full_info['digg_count'],
+                                    'comment_count': full_info['comment_count'],
+                                    'collect_count': full_info['collect_count'],
+                                    'share_count': full_info['share_count'],
+                                    'admire_count': full_info.get('admire_count', 0)
+                                },
+                                'author': {
+                                    'nickname': full_info['nickname'],
+                                    'user_id': full_info['user_id'],
+                                    'user_url': full_info['user_url'],
+                                    'avatar_thumb': full_info.get('author_avatar', ''),
+                                    'user_desc': full_info.get('user_desc', ''),
+                                    'following_count': full_info.get('following_count', 0),
+                                    'follower_count': full_info.get('follower_count', 0)
+                                },
+                                'video': {
+                                    'cover': full_info.get('video_cover', ''),
+                                    'play_addr': full_info.get('video_addr', '')
+                                },
+                                'images': full_info.get('images', []),
+                                'topics': full_info.get('topics', []),
+                                'download_time': work['download_time'],
+                                'file_size': work['file_size'],
+                                'is_complete': work['is_complete']
+                            }
+                            enhanced_works.append(enhanced_work)
+                    else:
+                        # 如果没有info.json，使用数据库中的基本信息
+                        enhanced_works.append({
+                            'work_id': work['work_id'],
+                            'title': work['title'],
+                            'work_type': work['work_type'],
+                            'statistics': {'digg_count': 0, 'play_count': 0, 'comment_count': 0, 'collect_count': 0, 'share_count': 0},
+                            'author': {'nickname': work['nickname'], 'user_id': '', 'avatar_thumb': ''},
+                            'video': {'cover': '', 'play_addr': ''},
+                            'create_time': 0,
+                            'download_time': work['download_time'],
+                            'file_size': work['file_size'],
+                            'is_complete': work['is_complete']
+                        })
+            except Exception as e:
+                logger.error(f"加载作品 {work['work_id']} 详细信息失败: {e}")
+                # 发生错误时使用基本信息
+                enhanced_works.append({
+                    'work_id': work['work_id'],
+                    'title': work['title'],
+                    'work_type': work['work_type'],
+                    'statistics': {'digg_count': 0, 'play_count': 0, 'comment_count': 0, 'collect_count': 0, 'share_count': 0},
+                    'author': {'nickname': work['nickname'], 'user_id': '', 'avatar_thumb': ''},
+                    'video': {'cover': '', 'play_addr': ''},
+                    'create_time': 0,
+                    'download_time': work['download_time'],
+                    'file_size': work['file_size'],
+                    'is_complete': work['is_complete']
+                })
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'items': enhanced_works,
+                'total': len(enhanced_works),
+                'page': page,
+                'limit': limit
+            }
+        })
+    except Exception as e:
+        logger.error(f"获取作品列表失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/database/stats', methods=['GET'])
+def get_database_stats():
+    """获取数据库统计信息"""
+    try:
+        db = get_download_db()
+        user_id = request.args.get('user_id')
+        
+        # 获取下载统计
+        download_stats = db.get_download_stats(user_id)
+        
+        # 获取数据库基本信息
+        db_info = db.get_database_info()
+        
+        # 获取最近下载记录
+        recent_downloads = db.get_recent_downloads(10)
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'download_stats': download_stats,
+                'database_info': db_info,
+                'recent_downloads': recent_downloads
+            }
+        })
+    except Exception as e:
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/database/cleanup', methods=['POST'])
+def cleanup_database():
+    """清理数据库中的无效记录"""
+    try:
+        db = get_download_db()
+        cleaned_count = db.cleanup_invalid_records()
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'cleaned_count': cleaned_count,
+                'message': f'已清理 {cleaned_count} 条无效记录'
+            }
+        })
+    except Exception as e:
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/database/rebuild', methods=['POST'])
+def rebuild_database():
+    """从文件系统重建数据库索引"""
+    try:
+        data = request.get_json()
+        base_path = data.get('base_path', config.get('save_path', './downloads') + '/media')
+        
+        db = get_download_db()
+        rebuilt_count = db.rebuild_from_filesystem(base_path)
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'rebuilt_count': rebuilt_count,
+                'message': f'已重建 {rebuilt_count} 个作品的索引',
+                'base_path': base_path
+            }
+        })
+    except Exception as e:
+        logger.error(f"重建数据库索引失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    """提供静态文件服务"""
+    try:
+        file_path = os.path.join('downloads', filename)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return send_file(file_path)
+        else:
+            return jsonify({'error': 'File not found'}), 404
+    except Exception as e:
+        logger.error(f"提供静态文件失败: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/')
 def index():

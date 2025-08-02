@@ -6,6 +6,7 @@ import openpyxl
 import requests
 from loguru import logger
 from retry import retry
+from .download_db import get_download_db
 
 
 def norm_str(str):
@@ -291,13 +292,14 @@ def check_work_complete(save_path, work_type, images_count=0):
     return True
 
 @retry(tries=3, delay=1)
-def download_work(work_info, path, save_choice, force_download=False):
+def download_work(work_info, path, save_choice, force_download=False, use_database=True):
     """
-    下载作品，支持增量下载
+    下载作品，支持增量下载和数据库记录
     :param work_info: 作品信息
     :param path: 保存基础路径
     :param save_choice: 保存选择
     :param force_download: 是否强制下载
+    :param use_database: 是否使用数据库记录
     :return: 包含下载统计的结果
     """
     work_id = work_info['work_id']
@@ -326,15 +328,29 @@ def download_work(work_info, path, save_choice, force_download=False):
     # 计算总文件数
     if work_type == '图集':
         images_count = len(work_info.get('images', []))
-        stats['total_files'] = images_count
+        stats['total_files'] = images_count + 2  # 图片 + info.json + detail.txt
     elif work_type == '视频':
-        stats['total_files'] = 2  # 视频 + 封面
+        stats['total_files'] = 4  # 视频 + 封面 + info.json + detail.txt
     
-    # 检查作品是否已完整下载
+    # 数据库检查（如果启用）
+    db = get_download_db() if use_database else None
+    if db and not force_download:
+        if db.is_work_complete(work_id):
+            logger.info(f'数据库显示作品已完整下载，跳过: {work_id} - {title}')
+            stats['files_skipped'] = stats['total_files']
+            stats['is_complete'] = True
+            return stats
+    
+    # 文件系统检查（备用方案）
     if not force_download and check_work_complete(save_path, work_type, len(work_info.get('images', []))):
         logger.info(f'作品已完整下载，跳过: {work_id} - {title}')
         stats['files_skipped'] = stats['total_files']
         stats['is_complete'] = True
+        
+        # 如果数据库启用但没有记录，补充记录
+        if db and not db.is_work_complete(work_id):
+            _record_existing_work_to_db(db, work_info, save_path)
+        
         return stats
     
     # 创建目录并保存基本信息
@@ -346,6 +362,21 @@ def download_work(work_info, path, save_choice, force_download=False):
     
     # 保存详细信息（总是更新）
     save_wrok_detail(work_info, save_path)
+    
+    # 用于数据库记录的文件信息
+    files_info = []
+    
+    # 记录基本文件
+    for file_name in ['info.json', 'detail.txt']:
+        file_path = os.path.join(save_path, file_name)
+        if os.path.exists(file_path):
+            files_info.append({
+                'file_name': file_name,
+                'file_type': 'info' if file_name.endswith('.json') else 'detail',
+                'file_path': file_path,
+                'file_size': os.path.getsize(file_path),
+                'is_valid': True
+            })
     
     # 下载媒体文件
     if work_type == '图集' and save_choice in ['media', 'media-image', 'all']:
@@ -365,12 +396,24 @@ def download_work(work_info, path, save_choice, force_download=False):
             
             if img_url:
                 result = download_media(save_path, f'image_{img_index}', img_url, 'image', force_download)
+                file_path = os.path.join(save_path, f'image_{img_index}.jpg')
+                
                 if result == 'downloaded':
                     stats['files_downloaded'] += 1
                 elif result == 'skipped':
                     stats['files_skipped'] += 1
                 else:
                     stats['files_failed'] += 1
+                
+                # 记录文件信息（如果文件存在）
+                if os.path.exists(file_path):
+                    files_info.append({
+                        'file_name': f'image_{img_index}.jpg',
+                        'file_type': 'image',
+                        'file_path': file_path,
+                        'file_size': os.path.getsize(file_path),
+                        'is_valid': True
+                    })
             else:
                 logger.warning(f'无法提取图片{img_index}的URL，数据: {img_data}')
                 stats['files_failed'] += 1
@@ -378,6 +421,8 @@ def download_work(work_info, path, save_choice, force_download=False):
     elif work_type == '视频' and save_choice in ['media', 'media-video', 'all']:
         # 下载封面
         cover_result = download_media(save_path, 'cover', work_info['video_cover'], 'image', force_download)
+        cover_path = os.path.join(save_path, 'cover.jpg')
+        
         if cover_result == 'downloaded':
             stats['files_downloaded'] += 1
         elif cover_result == 'skipped':
@@ -385,17 +430,44 @@ def download_work(work_info, path, save_choice, force_download=False):
         else:
             stats['files_failed'] += 1
         
+        if os.path.exists(cover_path):
+            files_info.append({
+                'file_name': 'cover.jpg',
+                'file_type': 'cover',
+                'file_path': cover_path,
+                'file_size': os.path.getsize(cover_path),
+                'is_valid': True
+            })
+        
         # 下载视频
         video_result = download_media(save_path, 'video', work_info['video_addr'], 'video', force_download)
+        video_path = os.path.join(save_path, 'video.mp4')
+        
         if video_result == 'downloaded':
             stats['files_downloaded'] += 1
         elif video_result == 'skipped':
             stats['files_skipped'] += 1
         else:
             stats['files_failed'] += 1
+        
+        if os.path.exists(video_path):
+            files_info.append({
+                'file_name': 'video.mp4',
+                'file_type': 'video',
+                'file_path': video_path,
+                'file_size': os.path.getsize(video_path),
+                'is_valid': True
+            })
     
     # 检查是否完整下载
     stats['is_complete'] = check_work_complete(save_path, work_type, len(work_info.get('images', [])))
+    
+    # 记录到数据库
+    if db and files_info:
+        work_record = work_info.copy()
+        work_record['save_path'] = save_path
+        work_record['is_complete'] = stats['is_complete']
+        db.record_work_download(work_record, files_info)
     
     # 日志统计
     if stats['files_downloaded'] > 0:
@@ -404,6 +476,51 @@ def download_work(work_info, path, save_choice, force_download=False):
         logger.info(f'作品处理完成: {work_id} - 跳过: {stats["files_skipped"]}, 失败: {stats["files_failed"]}')
     
     return stats
+
+
+def _record_existing_work_to_db(db, work_info, save_path):
+    """将已存在的作品记录到数据库"""
+    try:
+        files_info = []
+        
+        # 扫描目录中的文件
+        if os.path.exists(save_path):
+            for file_name in os.listdir(save_path):
+                file_path = os.path.join(save_path, file_name)
+                if os.path.isfile(file_path):
+                    file_size = os.path.getsize(file_path)
+                    
+                    # 判断文件类型
+                    if file_name.endswith('.mp4'):
+                        file_type = 'video'
+                    elif file_name.endswith('.jpg') and 'cover' in file_name:
+                        file_type = 'cover'
+                    elif file_name.endswith('.jpg'):
+                        file_type = 'image'
+                    elif file_name == 'info.json':
+                        file_type = 'info'
+                    elif file_name == 'detail.txt':
+                        file_type = 'detail'
+                    else:
+                        continue
+                    
+                    files_info.append({
+                        'file_name': file_name,
+                        'file_type': file_type,
+                        'file_path': file_path,
+                        'file_size': file_size,
+                        'is_valid': True
+                    })
+        
+        if files_info:
+            work_record = work_info.copy()
+            work_record['save_path'] = save_path
+            work_record['is_complete'] = True
+            db.record_work_download(work_record, files_info)
+            logger.info(f'已将现有作品记录到数据库: {work_info["work_id"]}')
+            
+    except Exception as e:
+        logger.error(f'记录现有作品到数据库失败: {e}')
 
 
 

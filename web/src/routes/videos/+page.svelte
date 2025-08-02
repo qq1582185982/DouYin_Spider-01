@@ -70,11 +70,13 @@
       {#each works as work}
         <Card class="overflow-hidden">
           {#if work.video?.cover}
-            <img 
-              src={work.video.cover} 
-              alt={work.title}
-              class="h-48 w-full object-cover"
-            />
+            <div class="h-48 w-full bg-gray-100 flex items-center justify-center overflow-hidden">
+              <img 
+                src={work.video.cover} 
+                alt={work.title}
+                class="h-full w-auto object-cover"
+              />
+            </div>
           {/if}
           <CardHeader>
             <CardTitle class="line-clamp-2 text-base">{work.title || work.desc}</CardTitle>
