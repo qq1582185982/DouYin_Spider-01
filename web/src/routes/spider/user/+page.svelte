@@ -19,6 +19,7 @@
   let error = '';
   let currentTask: SpiderTask | null = null;
   let saveChoice = 'all';
+  let showSearchResults = true; // 控制是否显示搜索结果
 
   const saveOptions = [
     { value: 'all', label: '保存所有信息' },
@@ -40,6 +41,7 @@
     selectedUser = null;
     userVideos = [];
     selectedVideos.clear();
+    showSearchResults = true; // 搜索时显示搜索结果
 
     try {
       const response = await api.searchUsers(searchQuery);
@@ -60,6 +62,7 @@
     error = '';
     userVideos = [];
     selectedVideos.clear();
+    showSearchResults = false; // 查看作品时隐藏搜索结果
 
     try {
       const response = await api.getUserVideos(user.user_url);
@@ -70,6 +73,14 @@
     } finally {
       videosLoading = false;
     }
+  }
+
+  function backToSearch() {
+    showSearchResults = true;
+    selectedUser = null;
+    userVideos = [];
+    userInfo = null;
+    selectedVideos.clear();
   }
 
   function toggleVideo(awemeId: string) {
@@ -177,7 +188,7 @@
   </Card>
 
   <!-- 搜索结果 -->
-  {#if searchResults.length > 0}
+  {#if searchResults.length > 0 && showSearchResults}
     <Card>
       <CardHeader>
         <CardTitle>搜索结果</CardTitle>
@@ -215,15 +226,20 @@
   {/if}
 
   <!-- 视频列表 -->
-  {#if selectedUser && userVideos.length > 0}
+  {#if selectedUser && !showSearchResults}
     <Card>
       <CardHeader>
         <div class="flex items-center justify-between">
-          <div>
-            <CardTitle>{userInfo?.nickname} 的作品</CardTitle>
-            <p class="text-sm text-muted-foreground">
-              共 {userVideos.length} 个作品，已选择 {selectedVideos.size} 个
-            </p>
+          <div class="flex items-center gap-4">
+            <Button on:click={backToSearch} variant="ghost" size="sm">
+              ← 返回搜索
+            </Button>
+            <div>
+              <CardTitle>{userInfo?.nickname} 的作品</CardTitle>
+              <p class="text-sm text-muted-foreground">
+                共 {userVideos.length} 个作品，已选择 {selectedVideos.size} 个
+              </p>
+            </div>
           </div>
           <div class="flex gap-2">
             <Button on:click={selectAll} variant="outline" size="sm">
@@ -302,7 +318,7 @@
   {/if}
 
   <!-- 下载设置 -->
-  {#if selectedUser && userVideos.length > 0}
+  {#if selectedUser && userVideos.length > 0 && !showSearchResults}
     <Card>
       <CardHeader>
         <CardTitle>下载设置</CardTitle>
