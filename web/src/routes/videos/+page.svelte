@@ -12,17 +12,11 @@
   let loading = false;
   let page = 1;
   let total = 0;
-  let limit = 20;
+  let limit = 20; // 固定每页20个，让CSS Grid处理响应式
   let searchQuery = '';
-  let containerWidth = 0;
-  let isMobile = false;
-  let isTablet = false;
-  let isLargeScreen = false;
   let error: string | null = null;
   let retryCount = 0;
   const maxRetries = 3;
-  let currentCardsPerRow = 1;
-  let currentRows = 1;
 
   async function loadWorks() {
     loading = true;
@@ -32,7 +26,7 @@
       const response = await api.getWorks(page, limit);
       works = response.data.items;
       total = response.data.total;
-      retryCount = 0; // 重置重试计数
+      retryCount = 0;
     } catch (err: any) {
       console.error('Failed to load works:', err);
       error = err?.message || '加载失败，请稍后重试';
@@ -41,10 +35,10 @@
       if (retryCount < maxRetries) {
         retryCount++;
         setTimeout(() => {
-          if (error) { // 只有在仍然有错误时才重试
+          if (error) {
             loadWorks();
           }
-        }, 1000 * retryCount); // 递增延时
+        }, 1000 * retryCount);
       }
     } finally {
       loading = false;
@@ -78,158 +72,8 @@
   }
 
   onMount(() => {
-    updateLimit();
     loadWorks();
-    
-    // 防抖处理窗口大小变化
-    let resizeTimeout: NodeJS.Timeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        updateLimit();
-      }, 300); // 300ms防抖
-    };
-    
-    // 方向改变监听（移动设备）
-    const handleOrientationChange = () => {
-      // 等待方向改变完成
-      setTimeout(() => {
-        updateLimit();
-      }, 500);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleOrientationChange);
-    
-    // 移动端触摸优化
-    if ('ontouchstart' in window) {
-      document.body.style.setProperty('-webkit-tap-highlight-color', 'transparent');
-    }
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleOrientationChange);
-      clearTimeout(resizeTimeout);
-    };
   });
-
-  function updateDeviceType() {
-    if (typeof window !== 'undefined') {
-      const width = window.innerWidth;
-      isMobile = width < 768;
-      isTablet = width >= 768 && width < 1200;
-      isLargeScreen = width >= 1200;
-    }
-  }
-
-  function updateLimit() {
-    if (typeof window !== 'undefined') {
-      updateDeviceType();
-      
-      // 根据设备类型调整卡片尺寸和间距
-      let cardWidth, containerPadding, cardHeight;
-      
-      if (isMobile) {
-        // 移动端：2列布局，较小卡片
-        cardWidth = 160; // 144px + 16px gap
-        containerPadding = 32;
-        cardHeight = 320; // 更紧凑的高度
-      } else if (isTablet) {
-        // 平板：3-4列布局
-        cardWidth = 180; // 164px + 16px gap
-        containerPadding = 64;
-        cardHeight = 350;
-      } else {
-        // 桌面端：原有尺寸
-        cardWidth = 208; // 192px + 16px gap
-        containerPadding = 96;
-        cardHeight = 392;
-      }
-      
-      const availableWidth = window.innerWidth - containerPadding;
-      let cardsPerRow = Math.max(1, Math.floor(availableWidth / cardWidth));
-      
-      // 移动端强制最多2列，平板最多4列
-      if (isMobile) {
-        cardsPerRow = Math.min(cardsPerRow, 2);
-      } else if (isTablet) {
-        cardsPerRow = Math.min(cardsPerRow, 4);
-      }
-      
-      // 动态计算行数
-      const headerHeight = isMobile ? 160 : (isTablet ? 180 : 200);
-      const paginationHeight = isMobile ? 100 : 80;
-      const availableHeight = window.innerHeight - headerHeight - paginationHeight;
-      const maxRows = Math.max(1, Math.floor(availableHeight / cardHeight));
-      
-      // 智能计算最佳显示数量，确保布局均匀
-      let newLimit;
-      
-      // 计算理想的行数范围
-      const minRows = isMobile ? 1 : 2;
-      const maxPossibleRows = Math.max(1, Math.floor(availableHeight / cardHeight));
-      
-      // 根据设备类型设置推荐行数
-      let recommendedRows;
-      if (isMobile) {
-        recommendedRows = Math.min(4, maxPossibleRows); // 移动端最多4行
-      } else if (isTablet) {
-        recommendedRows = Math.min(4, maxPossibleRows); // 平板最多4行
-      } else {
-        recommendedRows = Math.min(5, maxPossibleRows); // 桌面端最多5行
-      }
-      
-      // 确保至少有最小行数
-      const actualRows = Math.max(minRows, recommendedRows);
-      
-      // 计算完整行的布局（优先显示完整行）
-      newLimit = cardsPerRow * actualRows;
-      
-      // 设置设备相关的最小和最大值
-      const minItems = isMobile ? cardsPerRow : cardsPerRow * 2; // 至少1行（移动端）或2行
-      const maxItems = isMobile ? cardsPerRow * 4 : (isTablet ? cardsPerRow * 4 : cardsPerRow * 5);
-      
-      // 应用限制
-      newLimit = Math.max(minItems, Math.min(maxItems, newLimit));
-      
-      // 确保结果是完整行的倍数（避免不均匀布局）
-      newLimit = Math.floor(newLimit / cardsPerRow) * cardsPerRow;
-      
-      // 如果结果为0，至少显示一行
-      if (newLimit === 0) {
-        newLimit = cardsPerRow;
-      }
-      
-      // 保存当前布局信息
-      currentCardsPerRow = cardsPerRow;
-      currentRows = Math.floor(newLimit / cardsPerRow);
-      
-      console.log('Layout calculation:', {
-        deviceType: isMobile ? 'mobile' : (isTablet ? 'tablet' : 'desktop'),
-        windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight,
-        availableWidth,
-        availableHeight,
-        cardWidth,
-        cardHeight,
-        cardsPerRow: currentCardsPerRow,
-        rows: currentRows,
-        newLimit,
-        isCompleteGrid: newLimit % currentCardsPerRow === 0
-      });
-      
-      if (newLimit !== limit) {
-        const oldLimit = limit;
-        limit = newLimit;
-        page = 1; // 重置到第一页
-        const completeRows = Math.floor(newLimit / cardsPerRow);
-        console.log(`Limit changed from ${oldLimit} to ${newLimit} (${completeRows} complete rows of ${cardsPerRow} cards each)`);
-        if (works.length > 0) {
-          loadWorks(); // 重新加载数据
-        }
-      }
-    }
-  }
 
   $: totalPages = Math.ceil(total / limit);
   $: hasNextPage = page < totalPages;
@@ -242,19 +86,12 @@
 </svelte:head>
 
 <style>
-  /* 移动端优化 */
-  @media (max-width: 767px) {
-    :global(.video-grid) {
-      justify-content: center;
-    }
-  }
-  
   /* 平滑滚动 */
   :global(html) {
     scroll-behavior: smooth;
   }
   
-  /* 触摸反馈 */
+  /* 触摸反馈优化 */
   @media (hover: none) and (pointer: coarse) {
     :global(.hover\:scale-105) {
       transform: none !important;
@@ -276,32 +113,13 @@
     <div class="flex-1 w-full sm:w-auto">
       <Input
         type="search"
-        placeholder={isMobile ? "搜索视频..." : "搜索视频标题..."}
+        placeholder="搜索视频标题..."
         bind:value={searchQuery}
         class="w-full sm:max-w-md"
       />
     </div>
-    <div class="flex gap-2">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        on:click={updateLimit}
-        class="text-xs whitespace-nowrap"
-      >
-        {isMobile ? "调整" : "调整布局"}
-      </Button>
-      {#if !isMobile}
-        <div class="text-xs text-muted-foreground flex items-center px-2 bg-gray-50 rounded">
-          <span class="inline-block w-2 h-2 rounded-full mr-1"
-                class:bg-green-500={isLargeScreen}
-                class:bg-blue-500={isTablet}
-                class:bg-orange-500={isMobile}></span>
-          {isMobile ? "移动" : isTablet ? "平板" : "桌面"}模式
-          <span class="ml-2 opacity-75">
-            {currentCardsPerRow}列 × {currentRows}行
-          </span>
-        </div>
-      {/if}
+    <div class="text-xs text-muted-foreground flex items-center px-2 bg-gray-50 rounded">
+      自适应布局
     </div>
   </div>
 
@@ -338,17 +156,16 @@
       </CardContent>
     </Card>
   {:else}
-    <div class="flex flex-wrap gap-2 sm:gap-3 md:gap-4 video-grid"
-         class:justify-center={isMobile}
-         class:justify-start={!isMobile}>
+    <!-- 使用 CSS Grid 布局，类似参考项目的实现 -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
       {#each works as work}
-        <Card class="overflow-hidden flex-shrink-0 transition-all duration-200 hover:shadow-lg active:scale-95 {isMobile ? 'w-36' : isTablet ? 'w-40' : 'w-48'}">
+        <Card class="group flex h-full min-w-0 flex-col overflow-hidden transition-shadow hover:shadow-md">
           {#if work.video?.cover}
-            <div class="bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-lg {isMobile ? 'h-48' : isTablet ? 'h-52' : 'h-64'}">
+            <div class="relative overflow-hidden rounded-t-lg">
               <img 
                 src={work.video.cover} 
                 alt={work.title}
-                class="h-full w-full object-cover transition-transform duration-200 hover:scale-105"
+                class="aspect-[9/16] w-full object-cover transition-transform duration-200 group-hover:scale-105"
                 loading="lazy"
                 decoding="async"
                 on:error={(e) => {
@@ -360,46 +177,47 @@
                   }
                 }}
               />
-              <div class="hidden h-full w-full flex items-center justify-center bg-gray-100">
+              <div class="hidden aspect-[9/16] w-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
                 <Video class="h-8 w-8 text-gray-400" />
               </div>
             </div>
           {:else}
-            <div class="bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center rounded-t-lg {isMobile ? 'h-48' : isTablet ? 'h-52' : 'h-64'}">
+            <div class="aspect-[9/16] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center rounded-t-lg">
               <Video class="h-8 w-8 text-gray-400" />
             </div>
           {/if}
-          <div class="flex-1">
-            <CardHeader class="pb-2 px-3 pt-3">
-              <CardTitle class="line-clamp-2 leading-tight font-medium {isMobile ? 'text-xs' : 'text-sm'}">
-                {work.title || work.desc || '无标题'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent class="pt-0 px-3 pb-3">
-              <div class="space-y-1.5 {isLargeScreen ? 'text-sm' : 'text-xs'}">
-                <div class="flex items-center gap-1 text-muted-foreground">
-                  <User class="h-3 w-3 flex-shrink-0" />
-                  <span class="truncate text-xs font-medium">{work.author.nickname}</span>
+          
+          <CardHeader class="flex-shrink-0 pb-3">
+            <CardTitle class="line-clamp-2 min-w-0 flex-1 text-sm leading-tight font-medium" title={work.title || work.desc || '无标题'}>
+              {work.title || work.desc || '无标题'}
+            </CardTitle>
+            <div class="text-muted-foreground flex min-w-0 items-center gap-1 text-sm">
+              <User class="h-3 w-3 shrink-0" />
+              <span class="min-w-0 truncate" title={work.author.nickname}>
+                {work.author.nickname}
+              </span>
+            </div>
+          </CardHeader>
+          
+          <CardContent class="flex min-w-0 flex-1 flex-col justify-end pt-0">
+            <div class="space-y-2">
+              <div class="text-muted-foreground flex justify-between text-xs">
+                <span class="truncate">创建时间</span>
+                <span class="shrink-0">{formatDate(work.create_time)}</span>
+              </div>
+              
+              <div class="text-muted-foreground flex justify-between text-xs">
+                <div class="flex items-center gap-1">
+                  <Eye class="h-3 w-3" />
+                  <span>{formatNumber(work.statistics.play_count)}</span>
                 </div>
-                {#if !isMobile}
-                  <div class="flex items-center gap-1 text-muted-foreground">
-                    <Calendar class="h-3 w-3 flex-shrink-0" />
-                    <span class="text-xs">{formatDate(work.create_time)}</span>
-                  </div>
-                {/if}
-                <div class="flex items-center justify-between text-muted-foreground text-xs">
-                  <div class="flex items-center gap-1">
-                    <Eye class="h-3 w-3" />
-                    <span class="font-medium">{formatNumber(work.statistics.play_count)}</span>
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <span>❤️</span>
-                    <span class="font-medium">{formatNumber(work.statistics.digg_count)}</span>
-                  </div>
+                <div class="flex items-center gap-1">
+                  <span>❤️</span>
+                  <span>{formatNumber(work.statistics.digg_count)}</span>
                 </div>
               </div>
-            </CardContent>
-          </div>
+            </div>
+          </CardContent>
         </Card>
       {/each}
     </div>
@@ -408,42 +226,33 @@
     {#if totalPages > 1}
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="text-sm text-muted-foreground text-center sm:text-left">
-          {#if isMobile}
-            <div class="text-xs">
-              {page}/{totalPages} 页 · 共{total}条
-            </div>
-          {:else}
-            显示第 {(page - 1) * limit + 1} - {Math.min(page * limit, total)} 条，共 {total} 条
-            <span class="ml-2 text-xs opacity-70">
-              (每页 {limit} 个)
-            </span>
-          {/if}
+          显示第 {(page - 1) * limit + 1} - {Math.min(page * limit, total)} 条，共 {total} 条
+          <span class="ml-2 text-xs opacity-70">
+            (每页 {limit} 个)
+          </span>
         </div>
         
-        <div class="flex items-center gap-1 sm:gap-2">
+        <div class="flex items-center gap-2">
           <Button 
             variant="outline" 
-            size={isMobile ? "sm" : "sm"}
+            size="sm"
             on:click={prevPage} 
             disabled={!hasPrevPage}
-            class={isMobile ? "px-2" : ""}
           >
             <ChevronLeft class="h-4 w-4" />
-            {#if !isMobile}上一页{/if}
+            上一页
           </Button>
           
-          <div class="flex items-center gap-0.5 sm:gap-1">
-            {#each Array.from({length: Math.min(isMobile ? 3 : 5, totalPages)}, (_, i) => {
-              const maxVisible = isMobile ? 3 : 5;
-              const start = Math.max(1, page - Math.floor(maxVisible / 2));
-              const end = Math.min(totalPages, start + maxVisible - 1);
-              const adjustedStart = Math.max(1, end - maxVisible + 1);
-              return adjustedStart + i;
+          <div class="flex items-center gap-1">
+            {#each Array.from({length: Math.min(5, totalPages)}, (_, i) => {
+              const start = Math.max(1, page - 2);
+              const end = Math.min(totalPages, start + 4);
+              return start + i;
             }).filter(p => p <= totalPages) as pageNum}
               <Button
                 variant={pageNum === page ? "default" : "outline"}
                 size="sm"
-                class={`p-0 ${isMobile ? 'w-7 h-7 text-xs' : 'w-8 h-8'}`}
+                class="w-8 h-8 p-0"
                 on:click={() => goToPage(pageNum)}
               >
                 {pageNum}
@@ -453,12 +262,11 @@
           
           <Button 
             variant="outline" 
-            size={isMobile ? "sm" : "sm"}
+            size="sm"
             on:click={nextPage} 
             disabled={!hasNextPage}
-            class={isMobile ? "px-2" : ""}
           >
-            {#if !isMobile}下一页{/if}
+            下一页
             <ChevronRight class="h-4 w-4" />
           </Button>
         </div>
