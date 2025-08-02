@@ -11,7 +11,8 @@
       "Bash(del test_image_fix.py)",
       "mcp__unlimited-fetch__unlimited_fetch",
       "Bash(npm run check:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

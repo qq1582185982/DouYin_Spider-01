@@ -28,6 +28,9 @@
   let error: string | null = null;
   let isMobile = false;
   let innerWidth = 0;
+  let showVideo = false;
+  let videoElement: HTMLVideoElement;
+  let videoLoading = false;
 
   $: isMobile = innerWidth < 768;
 
@@ -46,6 +49,27 @@
       // 使用新的 API 方法获取单个作品详情
       const response = await api.getWork(workId);
       videoData = response.data;
+      console.log('视频数据:', videoData);
+      console.log('local_path:', videoData.video?.local_path);
+      console.log('play_addr:', videoData.video?.play_addr);
+      
+      // 诊断文件是否存在
+      if (videoData && videoData.video?.local_path) {
+        try {
+          const checkResponse = await fetch(`http://localhost:8000/api/check-file/${workId}`);
+          const checkData = await checkResponse.json();
+          console.log('文件检查结果:', checkData);
+          console.log('文件列表:', checkData.files_in_directory);
+          console.log('完整save_path:', checkData.save_path);
+          console.log('完整video_file:', checkData.video_file);
+          
+          if (!checkData.exists) {
+            console.warn('视频文件不存在于服务器:', checkData);
+          }
+        } catch (e) {
+          console.error('文件检查失败:', e);
+        }
+      }
     } catch (err: any) {
       console.error('加载视频详情失败:', err);
       error = err?.message || '加载失败，请稍后重试';
@@ -67,8 +91,76 @@
     }
   }
 
+  function playVideo() {
+    showVideo = true;
+  }
+
+  function closeVideo() {
+    showVideo = false;
+    if (videoElement) {
+      videoElement.pause();
+    }
+  }
+
+  // 处理视频URL，确保可以播放
+  function getVideoUrl(url: string): string {
+    if (!url) return '';
+    
+    // 如果是静态路径，直接加上主机名
+    if (url.startsWith('/static/') || url.startsWith('static/')) {
+      const path = url.startsWith('/') ? url : '/' + url;
+      // 不需要编码，因为Flask会自动处理
+      return `http://localhost:8000${path}`;
+    }
+    
+    // 如果是本地文件路径
+    if (url.includes('\\') || url.startsWith('D:') || url.startsWith('C:')) {
+      // 尝试转换为静态文件URL
+      const match = url.match(/downloads[\\\/](.+)/);
+      if (match) {
+        // 转换路径分隔符
+        const urlPath = match[1].replace(/\\/g, '/');
+        return `http://localhost:8000/static/${urlPath}`;
+      }
+    }
+    
+    return url;
+  }
+
+  // 处理键盘事件
+  function handleKeydown(e: KeyboardEvent) {
+    if (showVideo && videoElement) {
+      switch(e.key) {
+        case 'Escape':
+          closeVideo();
+          break;
+        case ' ':
+          e.preventDefault();
+          if (videoElement.paused) {
+            videoElement.play();
+          } else {
+            videoElement.pause();
+          }
+          break;
+        case 'ArrowLeft':
+          videoElement.currentTime -= 5;
+          break;
+        case 'ArrowRight':
+          videoElement.currentTime += 5;
+          break;
+      }
+    }
+  }
+
   onMount(() => {
     loadVideoDetail();
+    
+    // 添加键盘事件监听
+    window.addEventListener('keydown', handleKeydown);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeydown);
+    };
   });
 
   // 监听路由参数变化
@@ -130,7 +222,73 @@
         <!-- 封面区域 - 居中显示 -->
         <div class="w-full">
           <div class="relative overflow-hidden rounded-lg bg-black">
-            {#if videoData.video?.cover}
+            {#if showVideo && (videoData.video?.local_path || videoData.video?.play_addr)}
+              <!-- 视频播放器 -->
+              <div class="relative aspect-video">
+                {#if videoLoading}
+                  <div class="absolute inset-0 flex items-center justify-center bg-black">
+                    <div class="text-white text-center">
+                      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+                      <p class="text-sm">加载视频中...</p>
+                    </div>
+                  </div>
+                {/if}
+                
+                <video
+                  bind:this={videoElement}
+                  src={videoData.video.local_path ? `http://localhost:8000/api/video/${videoData.work_id}` : videoData.video.play_addr}
+                  controls
+                  autoplay
+                  class="w-full h-full object-contain"
+                  on:loadstart={() => videoLoading = true}
+                  on:canplay={() => videoLoading = false}
+                  on:error={async (e) => {
+                    videoLoading = false;
+                    console.error('视频播放错误:', e);
+                    console.error('原始URL:', videoData.video.play_addr);
+                    console.error('本地URL:', videoData.video.local_path);
+                    const processedUrl = getVideoUrl(videoData.video.local_path || videoData.video.play_addr);
+                    console.error('处理后的URL:', processedUrl);
+                    
+                    // 尝试检查文件是否可访问
+                    if (videoData.video.local_path) {
+                      try {
+                        const response = await fetch(processedUrl, { method: 'HEAD' });
+                        console.error('文件检查响应:', response.status, response.statusText);
+                        if (!response.ok) {
+                          const errorResponse = await fetch(processedUrl);
+                          const errorText = await errorResponse.text();
+                          console.error('错误详情:', errorText);
+                        }
+                      } catch (fetchError) {
+                        console.error('文件检查失败:', fetchError);
+                      }
+                    }
+                    
+                    toast.error('视频播放失败，请尝试在抖音中打开');
+                  }}
+                >
+                  <p>您的浏览器不支持视频播放</p>
+                </video>
+                
+                <!-- 关闭按钮 -->
+                <Button
+                  on:click={closeVideo}
+                  variant="ghost"
+                  size="icon"
+                  class="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white z-10"
+                >
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </Button>
+                
+                <!-- 快捷键提示 -->
+                <div class="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">
+                  空格: 播放/暂停 | ←→: 快进/快退 | ESC: 退出
+                </div>
+              </div>
+            {:else if videoData.video?.cover}
               <!-- 毛玻璃背景 -->
               <div class="absolute inset-0">
                 <img 
@@ -151,12 +309,25 @@
                 />
                 
                 <!-- 播放按钮覆盖层 -->
-                <div class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity">
-                  <Button size="lg" class="rounded-full">
-                    <Play class="h-6 w-6 mr-2" />
-                    播放视频
-                  </Button>
-                </div>
+                {#if videoData.video?.play_addr}
+                  <button
+                    on:click={playVideo}
+                    class="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 transition-colors group"
+                  >
+                    <div class="bg-white/90 rounded-full p-4 shadow-lg transform group-hover:scale-110 transition-transform">
+                      <Play class="h-8 w-8 text-gray-900" fill="currentColor" />
+                    </div>
+                  </button>
+                {:else}
+                  <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <div class="text-white text-center">
+                      <p class="text-sm mb-2">视频地址不可用</p>
+                      <Button on:click={openOriginalVideo} variant="secondary" size="sm">
+                        在抖音中查看
+                      </Button>
+                    </div>
+                  </div>
+                {/if}
               </div>
             {:else}
               <div class="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">

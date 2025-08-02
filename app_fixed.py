@@ -83,6 +83,36 @@ def _get_local_cover_url(save_path):
     
     return ''
 
+def _get_local_video_url(save_path):
+    """获取本地视频文件URL"""
+    if not save_path:
+        return ''
+    
+    # 处理相对路径和绝对路径
+    if os.path.isabs(save_path):
+        # 如果是绝对路径，转换为相对路径
+        base_dir = os.path.join(os.getcwd(), 'downloads')
+        try:
+            relative_save_path = os.path.relpath(save_path, base_dir)
+        except ValueError:
+            # 如果路径不在同一驱动器上，使用原始路径
+            logger.warning(f"无法转换路径: {save_path}")
+            return ''
+    else:
+        # 如果已经是相对路径，移除可能的前缀
+        relative_save_path = save_path.replace('./downloads\\', '').replace('./downloads/', '')
+    
+    video_file = os.path.join(save_path, 'video.mp4')
+    if os.path.exists(video_file):
+        # 转换Windows路径分隔符为URL分隔符
+        url_path = relative_save_path.replace('\\', '/')
+        return f'/static/{url_path}/video.mp4'
+    else:
+        # 如果文件不存在，记录日志
+        logger.warning(f"视频文件不存在: {video_file}")
+    
+    return ''
+
 # 初始化
 data_spider = None
 auth = None
@@ -504,7 +534,8 @@ def get_work(work_id):
                         },
                         'video': {
                             'cover': full_info.get('video_cover', ''),
-                            'play_addr': full_info.get('video_addr', '')
+                            'play_addr': full_info.get('video_addr', ''),
+                            'local_path': _get_local_video_url(work['save_path'])
                         },
                         'images': full_info.get('images', []),
                         'topics': full_info.get('topics', []),
@@ -718,18 +749,113 @@ def rebuild_database():
         logger.error(f"重建数据库索引失败: {e}")
         return jsonify({'code': 500, 'message': str(e)}), 500
 
+@app.route('/api/video/<work_id>')
+def serve_video(work_id):
+    """直接提供视频文件"""
+    try:
+        db = get_download_db()
+        work = db.get_work_info(work_id)
+        
+        if not work:
+            return jsonify({'error': '作品不存在'}), 404
+        
+        save_path = work.get('save_path', '')
+        video_file = os.path.join(save_path, 'video.mp4') if save_path else ''
+        
+        if video_file and os.path.exists(video_file):
+            return send_file(
+                video_file,
+                mimetype='video/mp4',
+                as_attachment=False,
+                conditional=True
+            )
+        else:
+            return jsonify({'error': '视频文件不存在'}), 404
+            
+    except Exception as e:
+        logger.error(f"提供视频文件失败: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/check-file/<work_id>')
+def check_file_exists(work_id):
+    """检查作品文件是否存在"""
+    try:
+        db = get_download_db()
+        work = db.get_work_info(work_id)
+        
+        if not work:
+            return jsonify({'exists': False, 'error': '作品不存在'})
+        
+        save_path = work.get('save_path', '')
+        video_file = os.path.join(save_path, 'video.mp4') if save_path else ''
+        
+        result = {
+            'work_id': work_id,
+            'save_path': save_path,
+            'video_file': video_file,
+            'exists': os.path.exists(video_file) if video_file else False,
+            'file_size': os.path.getsize(video_file) if video_file and os.path.exists(video_file) else 0
+        }
+        
+        # 列出目录中的文件（如果目录存在）
+        if save_path and os.path.exists(save_path):
+            result['files_in_directory'] = os.listdir(save_path)
+        else:
+            result['files_in_directory'] = []
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/static/<path:filename>')
 def static_files(filename):
     """提供静态文件服务"""
     try:
+        # Flask会自动解码URL编码的filename，但不会解码 %23 (#)
+        # 手动处理 # 符号的编码
+        if '%23' in filename:
+            filename = filename.replace('%23', '#')
+        
         file_path = os.path.join('downloads', filename)
+        
+        # 添加调试日志
+        logger.info(f"请求静态文件: {filename}")
+        logger.info(f"文件路径: {file_path}")
+        logger.info(f"文件绝对路径: {os.path.abspath(file_path)}")
+        logger.info(f"文件是否存在: {os.path.exists(file_path)}")
+        
+        # 如果文件不存在，尝试列出目录内容以调试
+        if not os.path.exists(file_path):
+            parent_dir = os.path.dirname(file_path)
+            if os.path.exists(parent_dir):
+                logger.info(f"父目录存在: {parent_dir}")
+                logger.info(f"目录内容: {os.listdir(parent_dir)}")
+            else:
+                logger.info(f"父目录不存在: {parent_dir}")
+        
         if os.path.exists(file_path) and os.path.isfile(file_path):
-            return send_file(file_path)
+            # 根据文件扩展名设置正确的MIME类型
+            mimetype = None
+            if filename.endswith('.mp4'):
+                mimetype = 'video/mp4'
+            elif filename.endswith('.jpg') or filename.endswith('.jpeg'):
+                mimetype = 'image/jpeg'
+            elif filename.endswith('.png'):
+                mimetype = 'image/png'
+            
+            # 支持范围请求（对视频很重要）
+            return send_file(
+                file_path, 
+                mimetype=mimetype,
+                as_attachment=False,
+                conditional=True  # 支持条件请求和范围请求
+            )
         else:
-            return jsonify({'error': 'File not found'}), 404
+            logger.warning(f"文件不存在: {file_path}")
+            return jsonify({'error': 'File not found', 'path': filename}), 404
     except Exception as e:
-        logger.error(f"提供静态文件失败: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
+        logger.error(f"提供静态文件失败: {filename}, 错误: {e}")
+        return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 
 @app.route('/')
 def index():
@@ -747,4 +873,6 @@ if __name__ == '__main__':
     print("DouYin Spider API Server")
     print("请先在Web界面设置Cookie")
     print("访问 http://localhost:8000")
+    print(f"当前工作目录: {os.getcwd()}")
+    print(f"downloads目录: {os.path.abspath('downloads')}")
     app.run(debug=True, port=8000, host='0.0.0.0')
