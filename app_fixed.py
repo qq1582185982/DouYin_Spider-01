@@ -8,6 +8,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.exceptions import BadRequest
 from dotenv import load_dotenv
+from loguru import logger
 
 # 导入实际的爬虫和认证类
 from main import Data_Spider
@@ -18,11 +19,52 @@ CORS(app)
 
 # 全局变量
 tasks = {}
-config = {
+CONFIG_FILE = 'config.json'
+
+# 默认配置
+DEFAULT_CONFIG = {
     'cookie': '',
     'save_path': './downloads',
     'proxy': ''
 }
+
+def load_config():
+    """从配置文件和环境变量加载配置"""
+    config = DEFAULT_CONFIG.copy()
+    
+    # 首先尝试从config.json读取
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                saved_config = json.load(f)
+                config.update(saved_config)
+                logger.info(f"从配置文件加载配置: {CONFIG_FILE}")
+        except Exception as e:
+            logger.warning(f"读取配置文件失败: {e}")
+    
+    # 然后从.env文件读取Cookie（如果config中没有）
+    if not config.get('cookie'):
+        load_dotenv()
+        env_cookie = os.getenv('DY_COOKIES', '')
+        if env_cookie:
+            config['cookie'] = env_cookie
+            logger.info("从.env文件加载Cookie")
+    
+    return config
+
+def save_config(config_data):
+    """保存配置到文件"""
+    try:
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config_data, f, ensure_ascii=False, indent=2)
+        logger.info(f"配置已保存到: {CONFIG_FILE}")
+        return True
+    except Exception as e:
+        logger.error(f"保存配置文件失败: {e}")
+        return False
+
+# 加载配置
+config = load_config()
 
 # 初始化
 data_spider = None
@@ -32,25 +74,34 @@ base_path = None
 def initialize():
     global data_spider, auth, base_path
     try:
-        # 创建下载目录
-        os.makedirs('./downloads/media', exist_ok=True)
-        os.makedirs('./downloads/excel', exist_ok=True)
+        # 创建保存目录
+        save_path = config.get('save_path', './downloads')
+        os.makedirs(os.path.join(save_path, 'media'), exist_ok=True)
+        os.makedirs(os.path.join(save_path, 'excel'), exist_ok=True)
         
-        # 初始化
+        # 初始化爬虫
         data_spider = Data_Spider()
         
-        # 创建真实的auth对象
+        # 创建auth对象并设置Cookie
         auth = DouyinAuth()
-        if config.get('cookie'):
-            auth.perepare_auth(config.get('cookie'), "", "")
+        cookie = config.get('cookie')
+        if cookie:
+            auth.perepare_auth(cookie, "", "")
+            logger.info("从配置文件加载Cookie到认证模块")
+        else:
+            logger.warning("未找到Cookie配置")
         
         base_path = {
-            'media': './downloads/media',
-            'excel': './downloads/excel'
+            'media': os.path.join(save_path, 'media'),
+            'excel': os.path.join(save_path, 'excel')
         }
-        print("初始化成功")
+        
+        logger.info(f"系统初始化成功")
+        logger.info(f"Cookie状态: {'已配置' if cookie else '未配置'}")
+        logger.info(f"保存路径: {save_path}")
     except Exception as e:
-        print(f"初始化失败: {e}")
+        logger.error(f"系统初始化失败: {e}")
+        raise
 
 @app.route('/api/system/status', methods=['GET'])
 def get_system_status():
@@ -105,7 +156,13 @@ def update_config():
     """更新配置"""
     try:
         data = request.get_json()
+        
+        # 更新内存中的配置
         config.update(data)
+        
+        # 保存配置到文件
+        if not save_config(config):
+            return jsonify({'code': 500, 'message': '配置保存失败'}), 500
         
         # 更新auth的cookie
         if 'cookie' in data and data['cookie']:
@@ -113,14 +170,17 @@ def update_config():
             if not auth:
                 auth = DouyinAuth()
             auth.perepare_auth(data['cookie'], "", "")
+            logger.info("Cookie已更新到认证模块")
             
         # 创建保存目录
         if 'save_path' in data and data['save_path']:
             os.makedirs(os.path.join(data['save_path'], 'media'), exist_ok=True)
             os.makedirs(os.path.join(data['save_path'], 'excel'), exist_ok=True)
+            logger.info(f"创建保存目录: {data['save_path']}")
             
-        return jsonify({'code': 0, 'message': 'success'})
+        return jsonify({'code': 0, 'message': '配置保存成功'})
     except Exception as e:
+        logger.error(f"更新配置失败: {e}")
         return jsonify({'code': 500, 'message': str(e)}), 500
 
 @app.route('/api/spider/user', methods=['POST'])
@@ -130,6 +190,7 @@ def spider_user():
         data = request.get_json()
         user_url = data.get('user_url')
         save_choice = data.get('save_choice', 'all')
+        force_download = data.get('force_download', False)
         
         if not user_url:
             raise BadRequest('user_url is required')
@@ -184,19 +245,23 @@ def spider_user():
                         
                         # 调用爬虫，注意需要传入excel_name参数
                         excel_name = user_url.split('/')[-1].split('?')[0]
-                        data_spider.spider_user_all_work(
+                        download_stats = data_spider.spider_user_all_work(
                             auth, 
                             user_url, 
                             spider_base_path, 
                             save_choice,
-                            excel_name
+                            excel_name,
+                            proxies=None,
+                            force_download=force_download
                         )
                         
                         task['status'] = 'completed'
                         task['progress'] = 100
-                        task['total'] = 100
-                        print(f"爬取完成: {user_url}")
-                        print(f"文件保存在: {spider_base_path}")
+                        task['total'] = download_stats['total_works']
+                        task['download_stats'] = download_stats
+                        logger.info(f"用户爬取完成: {user_url}")
+                        logger.info(f"下载统计: 新下载{download_stats['works_downloaded']}个作品, 跳过{download_stats['works_skipped']}个作品")
+                        logger.info(f"文件保存在: {spider_base_path}")
                     except Exception as e:
                         import traceback
                         error_details = traceback.format_exc()
@@ -261,6 +326,7 @@ def spider_search():
     try:
         data = request.get_json()
         query = data.get('query')
+        force_download = data.get('force_download', False)
         
         if not query:
             raise BadRequest('query is required')
@@ -304,7 +370,7 @@ def spider_search():
                 # 调用爬虫
                 if data_spider and auth:
                     options = data.get('options', {})
-                    data_spider.spider_some_search_work(
+                    download_stats = data_spider.spider_some_search_work(
                         auth,
                         query,
                         options.get('require_num', 20),
@@ -314,13 +380,18 @@ def spider_search():
                         options.get('publish_time', '0'),
                         options.get('filter_duration', ''),
                         options.get('search_range', '0'),
-                        options.get('content_type', '0')
+                        options.get('content_type', '0'),
+                        excel_name='',
+                        proxies=None,
+                        force_download=force_download
                     )
                     
                     task['status'] = 'completed'
                     task['progress'] = 100
-                    task['total'] = 100
-                    print(f"搜索完成: {query}")
+                    task['total'] = download_stats['total_works']
+                    task['download_stats'] = download_stats
+                    logger.info(f"搜索爬取完成: {query}")
+                    logger.info(f"下载统计: 新下载{download_stats['works_downloaded']}个作品, 跳过{download_stats['works_skipped']}个作品")
                 else:
                     task['status'] = 'failed'
                     task['error'] = '爬虫未初始化'

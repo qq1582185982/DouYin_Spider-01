@@ -26,7 +26,7 @@ class Data_Spider():
         logger.info(f'爬取作品信息 {work_url}')
         return work_info
 
-    def spider_some_work(self, auth, works: list, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
+    def spider_some_work(self, auth, works: list, base_path: dict, save_choice: str, excel_name: str = '', proxies=None, force_download=False):
         """
         爬取一些作品的信息
         :param auth: 用户认证信息
@@ -34,23 +34,48 @@ class Data_Spider():
         :param base_path: 保存路径
         :param save_choice: 保存方式 all: 保存所有的信息, media: 保存视频和图片（media-video只下载视频, media-image只下载图片，media都下载）, excel: 保存到excel
         :param excel_name: excel文件名
+        :param force_download: 是否强制下载
         :return:
         """
         if (save_choice == 'all' or save_choice == 'excel') and excel_name == '':
             raise ValueError('excel_name 不能为空')
+        
         work_list = []
+        download_stats = {
+            'total_works': 0,
+            'works_downloaded': 0,
+            'works_skipped': 0,
+            'files_downloaded': 0,
+            'files_skipped': 0,
+            'files_failed': 0
+        }
+        
         for work_url in works:
             work_info = self.spider_work(auth, work_url)
             work_list.append(work_info)
+            download_stats['total_works'] += 1
+            
         for work_info in work_list:
             if save_choice == 'all' or 'media' in save_choice:
-                download_work(work_info, base_path['media'], save_choice)
+                stats = download_work(work_info, base_path['media'], save_choice, force_download)
+                download_stats['files_downloaded'] += stats['files_downloaded']
+                download_stats['files_skipped'] += stats['files_skipped']
+                download_stats['files_failed'] += stats['files_failed']
+                
+                if stats['files_downloaded'] > 0:
+                    download_stats['works_downloaded'] += 1
+                elif stats['files_skipped'] == stats['total_files']:
+                    download_stats['works_skipped'] += 1
+                    
         if save_choice == 'all' or save_choice == 'excel':
             file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
             save_to_xlsx(work_list, file_path)
+        
+        logger.info(f'批量爬取完成 - 总作品: {download_stats["total_works"]}, 新下载: {download_stats["works_downloaded"]}, 跳过: {download_stats["works_skipped"]}, 文件下载: {download_stats["files_downloaded"]}, 文件跳过: {download_stats["files_skipped"]}, 文件失败: {download_stats["files_failed"]}')
+        return download_stats
 
 
-    def spider_user_all_work(self, auth, user_url: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
+    def spider_user_all_work(self, auth, user_url: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None, force_download=False):
         """
         爬取一个用户的所有作品
         :param auth: 用户认证信息
@@ -59,11 +84,22 @@ class Data_Spider():
         :param save_choice: 保存方式 all: 保存所有的信息, media: 保存视频和图片（media-video只下载视频, media-image只下载图片，media都下载）, excel: 保存到excel
         :param excel_name: excel文件名
         :param proxies: 代理
+        :param force_download: 是否强制下载
         :return:
         """
         user_info = self.douyin_apis.get_user_info(auth, user_url)
         work_list = self.douyin_apis.get_user_all_work_info(auth, user_url)
         work_info_list = []
+        
+        download_stats = {
+            'total_works': len(work_list),
+            'works_downloaded': 0,
+            'works_skipped': 0,
+            'files_downloaded': 0,
+            'files_skipped': 0,
+            'files_failed': 0
+        }
+        
         logger.info(f'用户 {user_url} 作品数量: {len(work_list)}')
         if save_choice == 'all' or save_choice == 'excel':
             excel_name = user_url.split('/')[-1].split('?')[0]
@@ -73,13 +109,26 @@ class Data_Spider():
             work_info = handle_work_info(work_info)
             work_info_list.append(work_info)
             logger.info(f'爬取作品信息 {work_info["work_url"]}')
+            
             if save_choice == 'all' or 'media' in save_choice:
-                download_work(work_info, base_path['media'], save_choice)
+                stats = download_work(work_info, base_path['media'], save_choice, force_download)
+                download_stats['files_downloaded'] += stats['files_downloaded']
+                download_stats['files_skipped'] += stats['files_skipped']
+                download_stats['files_failed'] += stats['files_failed']
+                
+                if stats['files_downloaded'] > 0:
+                    download_stats['works_downloaded'] += 1
+                elif stats['files_skipped'] == stats['total_files']:
+                    download_stats['works_skipped'] += 1
+                    
         if save_choice == 'all' or save_choice == 'excel':
             file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
             save_to_xlsx(work_info_list, file_path)
+            
+        logger.info(f'用户爬取完成 - 总作品: {download_stats["total_works"]}, 新下载: {download_stats["works_downloaded"]}, 跳过: {download_stats["works_skipped"]}, 文件下载: {download_stats["files_downloaded"]}, 文件跳过: {download_stats["files_skipped"]}, 文件失败: {download_stats["files_failed"]}')
+        return download_stats
 
-    def spider_some_search_work(self, auth, query: str, require_num: int, base_path: dict, save_choice: str,  sort_type: str, publish_time: str, filter_duration="", search_range="", content_type="",   excel_name: str = '', proxies=None):
+    def spider_some_search_work(self, auth, query: str, require_num: int, base_path: dict, save_choice: str,  sort_type: str, publish_time: str, filter_duration="", search_range="", content_type="",   excel_name: str = '', proxies=None, force_download=False):
         """
             :param auth: DouyinAuth object.
             :param query: 搜索关键字.
@@ -92,22 +141,47 @@ class Data_Spider():
             :param search_range: 搜索范围 0 不限, 1 最近看过, 2 还未看过, 3 关注的人
             :param content_type: 内容形式 0 不限, 1 视频, 2 图文
             :param excel_name: excel文件名
+            :param force_download: 是否强制下载
         """
         work_info_list = []
         work_list = self.douyin_apis.search_some_general_work(auth, query, require_num, sort_type, publish_time, filter_duration, search_range, content_type)
+        
+        download_stats = {
+            'total_works': len(work_list),
+            'works_downloaded': 0,
+            'works_skipped': 0,
+            'files_downloaded': 0,
+            'files_skipped': 0,
+            'files_failed': 0
+        }
+        
         logger.info(f'搜索关键词 {query} 作品数量: {len(work_list)}')
         if save_choice == 'all' or save_choice == 'excel':
             excel_name = query
+            
         for work_info in work_list:
             logger.info(json.dumps(work_info))
             logger.info(f'爬取作品信息 https://www.douyin.com/video/{work_info["aweme_info"]["aweme_id"]}')
             work_info = handle_work_info(work_info['aweme_info'])
             work_info_list.append(work_info)
+            
             if save_choice == 'all' or 'media' in save_choice:
-                download_work(work_info, base_path['media'], save_choice)
+                stats = download_work(work_info, base_path['media'], save_choice, force_download)
+                download_stats['files_downloaded'] += stats['files_downloaded']
+                download_stats['files_skipped'] += stats['files_skipped']
+                download_stats['files_failed'] += stats['files_failed']
+                
+                if stats['files_downloaded'] > 0:
+                    download_stats['works_downloaded'] += 1
+                elif stats['files_skipped'] == stats['total_files']:
+                    download_stats['works_skipped'] += 1
+                    
         if save_choice == 'all' or save_choice == 'excel':
             file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
             save_to_xlsx(work_info_list, file_path)
+            
+        logger.info(f'搜索爬取完成 - 总作品: {download_stats["total_works"]}, 新下载: {download_stats["works_downloaded"]}, 跳过: {download_stats["works_skipped"]}, 文件下载: {download_stats["files_downloaded"]}, 文件跳过: {download_stats["files_skipped"]}, 文件失败: {download_stats["files_failed"]}')
+        return download_stats
 
 if __name__ == '__main__':
     """

@@ -7,7 +7,8 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(xxd:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(del test_image_fix.py)"
     ],
     "deny": []
   }

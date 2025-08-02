@@ -128,7 +128,24 @@ def save_to_xlsx(datas, file_path):
     wb.save(file_path)
     logger.info(f'数据保存至 {file_path}')
 
-def download_media(path, name, url, type):
+def check_file_exists_and_valid(file_path, min_size=1024):
+    """检查文件是否存在且有效"""
+    if os.path.exists(file_path):
+        file_size = os.path.getsize(file_path)
+        # 文件大小大于最小值认为有效
+        return file_size >= min_size
+    return False
+
+def download_media(path, name, url, type, force_download=False):
+    """
+    下载媒体文件，支持增量下载
+    :param path: 保存路径
+    :param name: 文件名（不含扩展名）
+    :param url: 下载URL
+    :param type: 文件类型 ('image' 或 'video')
+    :param force_download: 是否强制下载，忽略已存在的文件
+    :return: 下载状态 ('downloaded', 'skipped', 'failed')
+    """
     # 添加必要的请求头以绕过403错误
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -143,26 +160,58 @@ def download_media(path, name, url, type):
     }
     
     if type == 'image':
-        content = requests.get(url, headers=headers).content
-        with open(path + '/' + name + '.jpg', mode="wb") as f:
-            f.write(content)
+        file_path = f'{path}/{name}.jpg'
+        # 检查文件是否已存在且有效
+        if not force_download and check_file_exists_and_valid(file_path, min_size=500):
+            logger.info(f'图片已存在，跳过下载: {file_path}')
+            return 'skipped'
+        
+        try:
+            response = requests.get(url, headers=headers, timeout=30)
+            if response.status_code == 200:
+                with open(file_path, mode="wb") as f:
+                    f.write(response.content)
+                logger.info(f'图片下载完成: {file_path} ({len(response.content)} bytes)')
+                return 'downloaded'
+            else:
+                logger.error(f'图片下载失败，状态码: {response.status_code}')
+                return 'failed'
+        except Exception as e:
+            logger.error(f'图片下载异常: {e}')
+            return 'failed'
+            
     elif type == 'video':
-        res = requests.get(url, stream=True, headers=headers)
-        if res.status_code == 200:
-            size = 0
-            chunk_size = 1024 * 1024
-            with open(path + '/' + name + '.mp4', mode="wb") as f:
-                for data in res.iter_content(chunk_size=chunk_size):
-                    f.write(data)
-                    size += len(data)
-            logger.info(f'视频下载完成，大小: {size} bytes')
-        else:
-            logger.error(f'视频下载失败，状态码: {res.status_code}, URL: {url}')
-            # 保存错误信息到文件以便调试
-            with open(path + '/' + name + '_error.txt', mode="w", encoding="utf-8") as f:
-                f.write(f"Status Code: {res.status_code}\n")
-                f.write(f"URL: {url}\n")
-                f.write(f"Response: {res.text[:1000]}\n")
+        file_path = f'{path}/{name}.mp4'
+        # 检查文件是否已存在且有效（视频文件最小100KB）
+        if not force_download and check_file_exists_and_valid(file_path, min_size=100*1024):
+            existing_size = os.path.getsize(file_path)
+            logger.info(f'视频已存在，跳过下载: {file_path} ({existing_size} bytes)')
+            return 'skipped'
+        
+        try:
+            res = requests.get(url, stream=True, headers=headers, timeout=60)
+            if res.status_code == 200:
+                size = 0
+                chunk_size = 1024 * 1024  # 1MB chunks
+                with open(file_path, mode="wb") as f:
+                    for data in res.iter_content(chunk_size=chunk_size):
+                        f.write(data)
+                        size += len(data)
+                logger.info(f'视频下载完成: {file_path} ({size} bytes)')
+                return 'downloaded'
+            else:
+                logger.error(f'视频下载失败，状态码: {res.status_code}, URL: {url}')
+                # 保存错误信息到文件以便调试
+                with open(f'{path}/{name}_error.txt', mode="w", encoding="utf-8") as f:
+                    f.write(f"Status Code: {res.status_code}\n")
+                    f.write(f"URL: {url}\n")
+                    f.write(f"Response: {res.text[:1000]}\n")
+                return 'failed'
+        except Exception as e:
+            logger.error(f'视频下载异常: {e}')
+            return 'failed'
+    
+    return 'failed'
 
 
 def save_wrok_detail(work, path):
@@ -214,8 +263,43 @@ def save_wrok_detail(work, path):
         f.write(f"ip归属地: {work['ip_location']}\n")
 
 
+def check_work_complete(save_path, work_type, images_count=0):
+    """检查作品是否已完整下载"""
+    if not os.path.exists(save_path):
+        return False
+    
+    # 检查基本文件
+    required_files = ['info.json', 'detail.txt']
+    for file in required_files:
+        if not os.path.exists(os.path.join(save_path, file)):
+            return False
+    
+    if work_type == '图集':
+        # 检查图片文件
+        for i in range(images_count):
+            img_file = os.path.join(save_path, f'image_{i}.jpg')
+            if not check_file_exists_and_valid(img_file, min_size=500):
+                return False
+    elif work_type == '视频':
+        # 检查视频和封面
+        video_file = os.path.join(save_path, 'video.mp4')
+        cover_file = os.path.join(save_path, 'cover.jpg')
+        if not (check_file_exists_and_valid(video_file, min_size=100*1024) and 
+                check_file_exists_and_valid(cover_file, min_size=500)):
+            return False
+    
+    return True
+
 @retry(tries=3, delay=1)
-def download_work(work_info, path, save_choice):
+def download_work(work_info, path, save_choice, force_download=False):
+    """
+    下载作品，支持增量下载
+    :param work_info: 作品信息
+    :param path: 保存基础路径
+    :param save_choice: 保存选择
+    :param force_download: 是否强制下载
+    :return: 包含下载统计的结果
+    """
     work_id = work_info['work_id']
     user_id = work_info['user_id']
     title = work_info['title']
@@ -225,19 +309,101 @@ def download_work(work_info, path, save_choice):
     if title.strip() == '':
         title = f'无标题'
     save_path = f'{path}/{nickname}_{user_id}/{title}_{work_id}'
-    check_and_create_path(save_path)
-    with open(f'{save_path}/info.json', mode='w', encoding='utf-8') as f:
-        f.write(json.dumps(work_info) + '\n')
     work_type = work_info['work_type']
+    
+    # 下载统计
+    stats = {
+        'work_id': work_id,
+        'work_type': work_type,
+        'save_path': save_path,
+        'files_downloaded': 0,
+        'files_skipped': 0,
+        'files_failed': 0,
+        'total_files': 0,
+        'is_complete': False
+    }
+    
+    # 计算总文件数
+    if work_type == '图集':
+        images_count = len(work_info.get('images', []))
+        stats['total_files'] = images_count
+    elif work_type == '视频':
+        stats['total_files'] = 2  # 视频 + 封面
+    
+    # 检查作品是否已完整下载
+    if not force_download and check_work_complete(save_path, work_type, len(work_info.get('images', []))):
+        logger.info(f'作品已完整下载，跳过: {work_id} - {title}')
+        stats['files_skipped'] = stats['total_files']
+        stats['is_complete'] = True
+        return stats
+    
+    # 创建目录并保存基本信息
+    check_and_create_path(save_path)
+    
+    # 保存作品信息（总是更新）
+    with open(f'{save_path}/info.json', mode='w', encoding='utf-8') as f:
+        f.write(json.dumps(work_info, ensure_ascii=False, indent=2) + '\n')
+    
+    # 保存详细信息（总是更新）
     save_wrok_detail(work_info, save_path)
+    
+    # 下载媒体文件
     if work_type == '图集' and save_choice in ['media', 'media-image', 'all']:
-        for img_index, img_url in enumerate(work_info['images']):
-            download_media(save_path, f'image_{img_index}', img_url, 'image')
+        for img_index, img_data in enumerate(work_info['images']):
+            # 从复杂的图片数据结构中提取URL
+            img_url = None
+            if isinstance(img_data, dict):
+                # 尝试多种可能的URL字段
+                if 'url_list' in img_data and img_data['url_list']:
+                    img_url = img_data['url_list'][0]
+                elif 'download_url_list' in img_data and img_data['download_url_list']:
+                    img_url = img_data['download_url_list'][0]
+                elif 'url' in img_data:
+                    img_url = img_data['url']
+            elif isinstance(img_data, str):
+                img_url = img_data
+            
+            if img_url:
+                result = download_media(save_path, f'image_{img_index}', img_url, 'image', force_download)
+                if result == 'downloaded':
+                    stats['files_downloaded'] += 1
+                elif result == 'skipped':
+                    stats['files_skipped'] += 1
+                else:
+                    stats['files_failed'] += 1
+            else:
+                logger.warning(f'无法提取图片{img_index}的URL，数据: {img_data}')
+                stats['files_failed'] += 1
+                
     elif work_type == '视频' and save_choice in ['media', 'media-video', 'all']:
-        download_media(save_path, 'cover', work_info['video_cover'], 'image')
-        download_media(save_path, 'video', work_info['video_addr'], 'video')
-    logger.info(f'作品 {work_info["work_id"]} 下载完成，保存路径: {save_path}')
-    return save_path
+        # 下载封面
+        cover_result = download_media(save_path, 'cover', work_info['video_cover'], 'image', force_download)
+        if cover_result == 'downloaded':
+            stats['files_downloaded'] += 1
+        elif cover_result == 'skipped':
+            stats['files_skipped'] += 1
+        else:
+            stats['files_failed'] += 1
+        
+        # 下载视频
+        video_result = download_media(save_path, 'video', work_info['video_addr'], 'video', force_download)
+        if video_result == 'downloaded':
+            stats['files_downloaded'] += 1
+        elif video_result == 'skipped':
+            stats['files_skipped'] += 1
+        else:
+            stats['files_failed'] += 1
+    
+    # 检查是否完整下载
+    stats['is_complete'] = check_work_complete(save_path, work_type, len(work_info.get('images', [])))
+    
+    # 日志统计
+    if stats['files_downloaded'] > 0:
+        logger.info(f'作品下载完成: {work_id} - 新下载: {stats["files_downloaded"]}, 跳过: {stats["files_skipped"]}, 失败: {stats["files_failed"]}')
+    else:
+        logger.info(f'作品处理完成: {work_id} - 跳过: {stats["files_skipped"]}, 失败: {stats["files_failed"]}')
+    
+    return stats
 
 
 

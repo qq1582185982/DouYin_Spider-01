@@ -22,6 +22,8 @@
       const response = await api.getConfig();
       config = response.data;
       if (config.cookie) {
+        // 加载配置后设置Cookie到API客户端
+        api.setCookie(config.cookie);
         await validateCookie();
       }
     } catch (error) {
@@ -40,12 +42,26 @@
       const response = await api.validateCookie(config.cookie);
       cookieValid = response.data;
       if (cookieValid) {
+        // 验证成功后设置Cookie到API客户端
         api.setCookie(config.cookie);
+        message = 'Cookie验证成功';
+        messageType = 'success';
+      } else {
+        message = 'Cookie验证失败，请检查是否有效';
+        messageType = 'error';
       }
-    } catch (error) {
+    } catch (error: any) {
       cookieValid = false;
+      message = error.message || 'Cookie验证失败';
+      messageType = 'error';
     } finally {
       loading = false;
+      // 清除消息
+      if (message) {
+        setTimeout(() => {
+          message = '';
+        }, 3000);
+      }
     }
   }
 
@@ -56,6 +72,8 @@
     try {
       await api.updateConfig(config);
       if (config.cookie) {
+        // 保存后设置Cookie到API客户端
+        api.setCookie(config.cookie);
         await validateCookie();
       }
       message = '配置保存成功';
@@ -89,6 +107,9 @@
   <Card>
     <CardHeader>
       <CardTitle>Cookie 配置</CardTitle>
+      <p class="text-sm text-muted-foreground">
+        配置抖音Cookie以访问抖音数据
+      </p>
     </CardHeader>
     <CardContent class="space-y-4">
       <div>
@@ -98,10 +119,10 @@
         <div class="flex gap-2">
           <Input
             id="cookie"
-            type="text"
+            type="password"
             bind:value={config.cookie}
-            placeholder="请输入抖音Cookie"
-            class="flex-1"
+            placeholder="请输入完整的Cookie字符串"
+            class="flex-1 font-mono text-xs"
           />
           <Button 
             on:click={validateCookie} 
@@ -121,12 +142,26 @@
             <span class="text-sm text-green-600">Cookie 有效</span>
           {:else if config.cookie && !loading}
             <XCircle class="h-4 w-4 text-red-600" />
-            <span class="text-sm text-red-600">Cookie 无效</span>
+            <span class="text-sm text-red-600">Cookie 无效或已过期</span>
           {/if}
         </div>
-        <p class="mt-1 text-xs text-muted-foreground">
-          请从浏览器开发者工具中复制完整的Cookie字符串
-        </p>
+        
+        <!-- Cookie获取指导 -->
+        <div class="mt-4 rounded-lg border bg-muted/50 p-4">
+          <h4 class="mb-2 text-sm font-medium">如何获取Cookie:</h4>
+          <ol class="space-y-1 text-xs text-muted-foreground">
+            <li>1. 用浏览器打开 <a href="https://www.douyin.com" target="_blank" class="text-blue-600 hover:underline">www.douyin.com</a></li>
+            <li>2. 登录你的抖音账号</li>
+            <li>3. 按 F12 打开开发者工具</li>
+            <li>4. 切换到 "Network" 或"网络"标签页</li>
+            <li>5. 刷新页面，找到任意请求</li>
+            <li>6. 在请求头中找到 "Cookie" 字段，复制整个值</li>
+            <li>7. 将Cookie粘贴到上面的输入框中</li>
+          </ol>
+          <div class="mt-3 text-xs text-amber-600">
+            <strong>注意:</strong> Cookie包含敏感信息，请勿分享给他人。Cookie可能会过期，需要定期更新。
+          </div>
+        </div>
       </div>
     </CardContent>
   </Card>
@@ -177,6 +212,35 @@
         <p class="mt-1 text-xs text-muted-foreground">
           如需使用代理，请输入代理服务器地址
         </p>
+      </div>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardHeader>
+      <CardTitle>常见问题</CardTitle>
+    </CardHeader>
+    <CardContent class="space-y-4">
+      <div class="space-y-3 text-sm">
+        <div>
+          <h4 class="font-medium text-foreground">为什么需要Cookie？</h4>
+          <p class="text-muted-foreground">Cookie包含登录状态信息，用于访问抖音的数据。没有有效的Cookie无法获取用户作品和详细信息。</p>
+        </div>
+        
+        <div>
+          <h4 class="font-medium text-foreground">Cookie多久会过期？</h4>
+          <p class="text-muted-foreground">抖音Cookie通常在几小时到几天后过期，具体时间取决于账号活跃度。过期后需要重新获取。</p>
+        </div>
+        
+        <div>
+          <h4 class="font-medium text-foreground">爬取失败怎么办？</h4>
+          <p class="text-muted-foreground">请检查：1) Cookie是否有效；2) 网络连接是否正常；3) 目标链接是否正确；4) 是否被抖音限制访问。</p>
+        </div>
+        
+        <div>
+          <h4 class="font-medium text-foreground">文件保存在哪里？</h4>
+          <p class="text-muted-foreground">默认保存在 ./downloads 目录下，视频保存在 media 文件夹，数据表格保存在 excel 文件夹。可在存储设置中修改。</p>
+        </div>
       </div>
     </CardContent>
   </Card>
