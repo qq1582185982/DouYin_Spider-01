@@ -58,6 +58,7 @@ def handle_work_info(data):
     commnet_count = data['statistics']['comment_count']
     collect_count = data['statistics']['collect_count']
     share_count = data['statistics']['share_count']
+    play_count = data['statistics']['play_count'] if 'play_count' in data['statistics'] else 0
     video_addr = data['video']['play_addr']['url_list'][0]
     images = data['images']
     if not isinstance(images, list):
@@ -90,6 +91,7 @@ def handle_work_info(data):
         'comment_count': commnet_count,
         'collect_count': collect_count,
         'share_count': share_count,
+        'play_count': play_count,
         'video_addr': video_addr,
         'images': images,
         'topics': topics,
@@ -113,7 +115,7 @@ def handle_work_info(data):
 def save_to_xlsx(datas, file_path):
     wb = openpyxl.Workbook()
     ws = wb.active
-    headers = ['作品id', '作品url', '作品类型', '作品标题', '描述', 'admire数量', '点赞数量', '评论数量', '收藏数量', '分享数量', '视频地址url', '图片地址url列表', '标签', '上传时间', '视频封面url', '用户主页url', '用户id', '昵称', '头像url', '用户描述', '关注数量', '粉丝数量', '作品被赞和收藏数量', '作品数量', '用户年龄', '性别', 'ip归属地']
+    headers = ['作品id', '作品url', '作品类型', '作品标题', '描述', 'admire数量', '点赞数量', '评论数量', '收藏数量', '分享数量', '播放数量', '视频地址url', '图片地址url列表', '标签', '上传时间', '视频封面url', '用户主页url', '用户id', '昵称', '头像url', '用户描述', '关注数量', '粉丝数量', '作品被赞和收藏数量', '作品数量', '用户年龄', '性别', 'ip归属地']
     ws.append(headers)
     for data in datas:
         # 确保所有值都转换为字符串，特别处理列表和字典类型
@@ -228,6 +230,7 @@ def save_wrok_detail(work, path):
         f.write(f"评论数量: {work['comment_count']}\n")
         f.write(f"收藏数量: {work['collect_count']}\n")
         f.write(f"分享数量: {work['share_count']}\n")
+        f.write(f"播放数量: {work.get('play_count', 0)}\n")
         f.write(f"视频地址url: {work['video_addr']}\n")
         images = work['images'] if isinstance(work['images'], list) else []
         topics = work['topics'] if isinstance(work['topics'], list) else []

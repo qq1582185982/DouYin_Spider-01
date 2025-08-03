@@ -398,10 +398,6 @@
                       作者：{video.info.author?.nickname || video.info.nickname || '未知'}
                     </p>
                     <div class="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                      <span class="flex items-center gap-1">
-                        <Eye class="h-3 w-3" />
-                        {formatNumber(video.info.statistics?.play_count || video.info.play_count || 0)}
-                      </span>
                       <span>❤ {formatNumber(video.info.statistics?.digg_count || video.info.digg_count || 0)}</span>
                       <span>💬 {formatNumber(video.info.statistics?.comment_count || video.info.comment_count || 0)}</span>
                       <span>↗ {formatNumber(video.info.statistics?.share_count || video.info.share_count || 0)}</span>
