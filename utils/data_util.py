@@ -284,12 +284,18 @@ def check_work_complete(save_path, work_type, images_count=0):
             img_file = os.path.join(save_path, f'image_{i}.jpg')
             if not check_file_exists_and_valid(img_file, min_size=500):
                 return False
-    elif work_type == '视频':
+    elif work_type == '视频' or work_type == '未知':
         # 检查视频和封面
         video_file = os.path.join(save_path, 'video.mp4')
         cover_file = os.path.join(save_path, 'cover.jpg')
-        if not (check_file_exists_and_valid(video_file, min_size=100*1024) and 
-                check_file_exists_and_valid(cover_file, min_size=500)):
+        # 添加日志以调试
+        video_exists = check_file_exists_and_valid(video_file, min_size=100*1024)
+        cover_exists = check_file_exists_and_valid(cover_file, min_size=500)
+        if not video_exists:
+            logger.debug(f'视频文件不存在或无效: {video_file}')
+        if not cover_exists:
+            logger.debug(f'封面文件不存在或无效: {cover_file}')
+        if not (video_exists and cover_exists):
             return False
     
     return True
@@ -332,8 +338,10 @@ def download_work(work_info, path, save_choice, force_download=False, use_databa
     if work_type == '图集':
         images_count = len(work_info.get('images', []))
         stats['total_files'] = images_count + 2  # 图片 + info.json + detail.txt
-    elif work_type == '视频':
+    elif work_type == '视频' or (work_type == '未知' and work_info.get('video_addr')):
         stats['total_files'] = 4  # 视频 + 封面 + info.json + detail.txt
+    else:
+        stats['total_files'] = 2  # 只有 info.json + detail.txt
     
     # 数据库检查（如果启用）
     db = get_database() if use_database else None
@@ -421,7 +429,7 @@ def download_work(work_info, path, save_choice, force_download=False, use_databa
                 logger.warning(f'无法提取图片{img_index}的URL，数据: {img_data}')
                 stats['files_failed'] += 1
                 
-    elif work_type == '视频' and save_choice in ['media', 'media-video', 'all']:
+    elif (work_type == '视频' or (work_type == '未知' and work_info.get('video_addr'))) and save_choice in ['media', 'media-video', 'all']:
         # 下载封面
         cover_result = download_media(save_path, 'cover', work_info['video_cover'], 'image', force_download)
         cover_path = os.path.join(save_path, 'cover.jpg')
