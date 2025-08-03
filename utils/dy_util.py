@@ -42,14 +42,8 @@ try:
     if not path.exists(dy_path):
         dy_path = path.join(basedir, '..', 'static', 'dy_ab.js')
     
-    # 使用临时目录避免中文路径问题
-    import tempfile
-    import shutil
-    temp_dir = tempfile.mkdtemp()
-    # 复制node_modules到临时目录
-    temp_node_modules = path.join(temp_dir, 'node_modules')
-    shutil.copytree(node_modules, temp_node_modules)
-    dy_js = execjs.compile(open(dy_path, 'r', encoding='utf-8').read(), cwd=temp_dir)
+    # 直接使用现有的node_modules目录，避免复制大文件
+    dy_js = execjs.compile(open(dy_path, 'r', encoding='utf-8').read(), cwd=node_modules)
 except Exception as e:
     print(f"Failed to load dy_ab.js: {e}")
     raise
