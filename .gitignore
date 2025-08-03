@@ -1,5 +1,7 @@
-__pycache__
-node_modules/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 *.so
 .Python
 build/
@@ -28,9 +30,47 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-datas
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database
 *.db
-问题/
-downloads002/
-config.json
+*.sqlite
+*.sqlite3
 data.sqlite
+
+# Configuration files (sensitive)
+config.json
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Data directories
+datas/
+downloads/
+downloads002/
+问题/
+scan_logs/
+scan_progress.json
+scan_config.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
