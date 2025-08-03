@@ -121,11 +121,57 @@ class DouyinAPI:
         :return: JSON.
         """
         api = f"/aweme/v1/web/aweme/detail/"
-        if 'video' in url:
+        
+        # 处理短链接
+        if 'v.douyin.com' in url:
+            try:
+                # 发送请求获取重定向后的URL
+                import requests
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+                # 不使用代理，直接连接
+                response = requests.get(url, allow_redirects=True, headers=headers, verify=False)
+                print(f"短链接最终URL: {response.url}")
+                
+                # 从最终URL中提取视频ID
+                final_url = response.url
+                
+                # 处理各种格式的URL
+                if 'iesdouyin.com' in final_url:
+                    # 从iesdouyin.com格式中提取ID
+                    # https://www.iesdouyin.com/share/video/7525755905897663790/?region=CN&mid=7525755957479426852&u_code=18b19ml3i&did=MS4wLjABAAAANwkJuWIRFOzg5uCpDRpMj4OX-QryoDgn-yYlXQnRwQQ&iid=MS4wLjABAAAANwkJuWIRFOzg5uCpDRpMj4OX-QryoDgn-yYlXQnRwQQ&with_sec_did=1&titleType=title&share_sign=T70qnCnoIcC5dMdHmhKFE1fJJQNqI0afrCIfsJFpOzU-&share_version=170400&from_ssr=1&from=web_code_link
+                    id_match = re.search(r'/video/(\d+)', final_url)
+                    if id_match:
+                        aweme_id = id_match.group(1)
+                    else:
+                        raise ValueError(f"无法从iesdouyin URL提取视频ID: {final_url}")
+                elif 'douyin.com' in final_url:
+                    # 标准douyin.com格式
+                    if '/video/' in final_url:
+                        id_match = re.search(r'/video/(\d+)', final_url)
+                        if id_match:
+                            aweme_id = id_match.group(1)
+                        else:
+                            aweme_id = final_url.split("/")[-1].split("?")[0]
+                    elif 'modal_id=' in final_url:
+                        aweme_id = re.findall(r'modal_id=(\d+)', final_url)[0]
+                    else:
+                        raise ValueError(f"无法从douyin URL提取视频ID: {final_url}")
+                else:
+                    raise ValueError(f"未知的URL格式: {final_url}")
+                
+                print(f"提取的作品ID: {aweme_id}")
+                url = f'https://www.douyin.com/video/{aweme_id}'
+            except Exception as e:
+                raise ValueError(f"处理短链接失败: {e}")
+        elif 'video' in url:
             aweme_id = url.split("/")[-1].split("?")[0]
-        else:
+        elif 'modal_id=' in url:
             aweme_id = re.findall(r'modal_id=(\d+)', url)[0]
             url = f'https://www.douyin.com/video/{aweme_id}'
+        else:
+            raise ValueError(f"无法识别的URL格式: {url}")
         headers = HeaderBuilder().build(HeaderType.GET)
         headers.set_referer(url)
         params = Params()

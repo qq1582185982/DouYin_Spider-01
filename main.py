@@ -20,12 +20,28 @@ class Data_Spider():
         :param work_url: 作品链接
         :return:
         """
-        res_json = self.douyin_apis.get_work_info(auth, work_url)
-        data = res_json['aweme_detail']
-
-        work_info = handle_work_info(data)
-        logger.info(f'爬取作品信息 {work_url}')
-        return work_info
+        try:
+            # 注意：get_work_info 不支持代理参数
+            res_json = self.douyin_apis.get_work_info(auth, work_url)
+            logger.info(f"API返回数据: {res_json}")
+            
+            if not res_json:
+                raise ValueError(f"API返回空数据: {work_url}")
+            
+            if 'aweme_detail' not in res_json:
+                logger.error(f"API返回数据格式错误: {res_json}")
+                raise ValueError(f"API返回数据中没有aweme_detail字段: {work_url}")
+            
+            data = res_json['aweme_detail']
+            if not data:
+                raise ValueError(f"aweme_detail为空: {work_url}")
+                
+            work_info = handle_work_info(data)
+            logger.info(f'爬取作品信息 {work_url}')
+            return work_info
+        except Exception as e:
+            logger.error(f"爬取作品失败 {work_url}: {e}")
+            raise
 
     def spider_some_work(self, auth, works: list, base_path: dict, save_choice: str, excel_name: str = '', proxies=None, force_download=False, use_database=True):
         """

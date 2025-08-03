@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
-  import { Link, Download, AlertCircle, Clipboard, Trash2 } from 'lucide-svelte';
+  import { Link, Download, AlertCircle, Clipboard, Trash2, Eye, Video, Image, Loader2 } from 'lucide-svelte';
   import api from '$lib/api';
   import { toast } from 'svelte-sonner';
 
@@ -10,6 +10,13 @@
   let error = '';
   let currentTaskId = '';
   let overallProgress = 0;
+  let previewing = false;
+  let videoInfos: Array<{
+    url: string;
+    info?: any;
+    error?: string;
+    loading?: boolean;
+  }> = [];
   let tasks: Array<{
     url: string;
     status: 'pending' | 'downloading' | 'completed' | 'failed';
@@ -53,10 +60,18 @@
 
   // 开始下载
   async function handleSubmit() {
-    const links = parseLinks(linksInput);
+    // 如果有预览信息但还在加载，等待
+    if (videoInfos.some(v => v.loading)) {
+      return;
+    }
     
-    if (links.length === 0) {
-      error = '请输入有效的视频链接';
+    // 使用有效的链接（过滤掉获取失败的）
+    const validLinks = videoInfos
+      .filter(v => v.info && !v.error)
+      .map(v => v.url);
+    
+    if (validLinks.length === 0) {
+      error = '没有有效的视频链接可以下载';
       return;
     }
 
@@ -65,21 +80,25 @@
     
     try {
       // 调用批量下载接口
-      const response = await api.spiderBatchWorks(links, false);
+      const response = await api.spiderBatchWorks(validLinks, false);
       const taskData = response.data;
       
       currentTaskId = taskData.id;
       
-      // 初始化任务列表
-      tasks = links.map(url => ({
-        url,
-        status: 'pending' as const
-      }));
+      // 初始化任务列表，包含预览信息
+      tasks = validLinks.map(url => {
+        const videoInfo = videoInfos.find(v => v.url === url);
+        return {
+          url,
+          status: 'pending' as const,
+          info: videoInfo?.info
+        };
+      });
       
       // 跟踪任务进度
       pollTaskProgress(taskData.id);
       
-      toast.success('下载任务已创建');
+      toast.success(`已创建下载任务，共 ${validLinks.length} 个视频`);
       
     } catch (e: any) {
       error = e.message || '创建下载任务失败';
@@ -150,6 +169,63 @@
     error = '';
     currentTaskId = '';
     overallProgress = 0;
+    videoInfos = [];
+    previewing = false;
+  }
+  
+  // 预览视频
+  async function previewVideos() {
+    const links = parseLinks(linksInput);
+    
+    if (links.length === 0) {
+      error = '请输入有效的视频链接';
+      return;
+    }
+    
+    error = '';
+    previewing = true;
+    
+    // 初始化视频信息列表
+    videoInfos = links.map(url => ({
+      url,
+      loading: true
+    }));
+    
+    // 并行获取所有视频信息
+    const promises = links.map(async (url, index) => {
+      try {
+        const response = await api.spiderWork(url, false);
+        videoInfos[index] = {
+          ...videoInfos[index],
+          info: response.data,
+          loading: false
+        };
+      } catch (e: any) {
+        videoInfos[index] = {
+          ...videoInfos[index],
+          error: e.message || '获取视频信息失败',
+          loading: false
+        };
+      }
+    });
+    
+    await Promise.all(promises);
+    previewing = false;
+  }
+  
+  // 监听输入变化，自动预览
+  let previewTimer: ReturnType<typeof setTimeout>;
+  $: {
+    if (linksInput) {
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(() => {
+        if (linksInput.trim() && parseLinks(linksInput).length > 0) {
+          previewVideos();
+        }
+      }, 1000); // 输入停止1秒后自动预览
+    } else {
+      videoInfos = [];
+    }
   }
 
   // 获取状态颜色
@@ -178,6 +254,21 @@
       default:
         return '等待中';
     }
+  }
+  
+  // 格式化数字
+  function formatNumber(num: number): string {
+    if (num >= 10000) {
+      return (num / 10000).toFixed(1) + 'w';
+    }
+    return num.toString();
+  }
+  
+  // 格式化时长
+  function formatDuration(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
   }
 </script>
 
@@ -230,7 +321,7 @@
           disabled={loading}
           rows="6"
           class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        />
+        ></textarea>
         
         <p class="mt-2 text-xs text-muted-foreground">
           提示：可以直接从抖音APP复制分享链接粘贴到这里
@@ -243,10 +334,93 @@
           <span class="text-sm">{error}</span>
         </div>
       {/if}
+    </CardContent>
+  </Card>
 
+  {#if videoInfos.length > 0}
+    <Card>
+      <CardHeader>
+        <div class="flex items-center justify-between">
+          <CardTitle>视频预览</CardTitle>
+          {#if previewing}
+            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 class="h-4 w-4 animate-spin" />
+              正在获取视频信息...
+            </div>
+          {/if}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div class="space-y-4">
+          {#each videoInfos as video, index}
+            <div class="rounded-lg border p-4 {video.error ? 'border-red-200 bg-red-50' : ''}">
+              {#if video.loading}
+                <div class="flex items-center gap-2">
+                  <Loader2 class="h-4 w-4 animate-spin" />
+                  <span class="text-sm text-muted-foreground">正在获取视频信息...</span>
+                </div>
+              {:else if video.error}
+                <div class="flex items-center gap-2 text-red-600">
+                  <AlertCircle class="h-4 w-4" />
+                  <span class="text-sm">{video.error}</span>
+                </div>
+              {:else if video.info}
+                <div class="flex gap-4">
+                  <!-- 视频封面 -->
+                  <div class="relative h-32 w-24 flex-shrink-0 overflow-hidden rounded bg-gray-100">
+                    {#if video.info.video?.cover || video.info.video_cover}
+                      <img 
+                        src={video.info.video?.cover || video.info.video_cover} 
+                        alt="视频封面"
+                        class="h-full w-full object-cover"
+                      />
+                      <div class="absolute bottom-1 right-1 rounded bg-black/60 px-1 py-0.5 text-[10px] text-white">
+                        {formatDuration(video.info.duration || 0)}
+                      </div>
+                    {/if}
+                    <div class="absolute left-1 top-1">
+                      {#if video.info.work_type === 'video' || video.info.aweme_type === 0}
+                        <div class="rounded bg-black/60 p-1">
+                          <Video class="h-3 w-3 text-white" />
+                        </div>
+                      {:else}
+                        <div class="rounded bg-black/60 p-1">
+                          <Image class="h-3 w-3 text-white" />
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                  
+                  <!-- 视频信息 -->
+                  <div class="flex-1">
+                    <h4 class="mb-1 font-medium">{video.info.desc || video.info.title || '无标题'}</h4>
+                    <p class="mb-2 text-sm text-muted-foreground">
+                      作者：{video.info.author?.nickname || video.info.nickname || '未知'}
+                    </p>
+                    <div class="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                      <span class="flex items-center gap-1">
+                        <Eye class="h-3 w-3" />
+                        {formatNumber(video.info.statistics?.play_count || video.info.play_count || 0)}
+                      </span>
+                      <span>❤ {formatNumber(video.info.statistics?.digg_count || video.info.digg_count || 0)}</span>
+                      <span>💬 {formatNumber(video.info.statistics?.comment_count || video.info.comment_count || 0)}</span>
+                      <span>↗ {formatNumber(video.info.statistics?.share_count || video.info.share_count || 0)}</span>
+                    </div>
+                  </div>
+                </div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      </CardContent>
+    </Card>
+  {/if}
+
+  <Card>
+    <CardContent class="pt-6">
       <Button 
         on:click={handleSubmit} 
-        disabled={loading || !linksInput.trim()}
+        disabled={loading || !linksInput.trim() || videoInfos.some(v => v.loading)}
         class="w-full"
       >
         {#if loading}

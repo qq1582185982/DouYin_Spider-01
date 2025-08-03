@@ -153,6 +153,14 @@ def initialize():
         if cookie:
             auth.perepare_auth(cookie, "", "")
             logger.info("从配置文件加载Cookie到认证模块")
+            
+            # 设置代理
+            if config.get('proxy'):
+                auth.proxies = {
+                    'http': config.get('proxy'),
+                    'https': config.get('proxy')
+                }
+                logger.info(f"设置代理: {config.get('proxy')}")
         else:
             logger.warning("未找到Cookie配置")
         
@@ -478,33 +486,52 @@ def spider_work():
         
         # 调用爬虫
         if data_spider and auth:
-            if download:
-                # 下载视频
-                download_stats = data_spider.spider_some_work(
-                    auth, 
-                    [work_url], 
-                    spider_base_path, 
-                    'media',  # 只下载媒体文件
-                    excel_name='',
-                    force_download=data.get('force_download', False),
-                    use_database=True
-                )
-                
-                # 获取作品信息
-                work_info = data_spider.spider_work(auth, work_url)
-                work_info['download_stats'] = download_stats
-                
-                return jsonify({'code': 0, 'message': 'success', 'data': work_info})
-            else:
-                # 只获取信息
-                work_info = data_spider.spider_work(auth, work_url)
-                return jsonify({'code': 0, 'message': 'success', 'data': work_info})
+            try:
+                if download:
+                    # 下载视频
+                    download_stats = data_spider.spider_some_work(
+                        auth, 
+                        [work_url], 
+                        spider_base_path, 
+                        'media',  # 只下载媒体文件
+                        excel_name='',
+                        force_download=data.get('force_download', False),
+                        use_database=True
+                    )
+                    
+                    # 获取作品信息
+                    proxies = None
+                    if config.get('proxy'):
+                        proxies = {
+                            'http': config.get('proxy'),
+                            'https': config.get('proxy')
+                        }
+                    work_info = data_spider.spider_work(auth, work_url, proxies)
+                    work_info['download_stats'] = download_stats
+                    
+                    return jsonify({'code': 0, 'message': 'success', 'data': work_info})
+                else:
+                    # 只获取信息
+                    proxies = None
+                    if config.get('proxy'):
+                        proxies = {
+                            'http': config.get('proxy'),
+                            'https': config.get('proxy')
+                        }
+                    work_info = data_spider.spider_work(auth, work_url, proxies)
+                    return jsonify({'code': 0, 'message': 'success', 'data': work_info})
+            except Exception as spider_error:
+                logger.error(f"爬虫执行失败: {spider_error}")
+                import traceback
+                logger.error(f"详细错误: {traceback.format_exc()}")
+                raise
         else:
             return jsonify({'code': 500, 'message': '爬虫未初始化'}), 500
             
     except BadRequest as e:
         return jsonify({'code': 400, 'message': str(e)}), 400
     except Exception as e:
+        logger.error(f"处理作品请求失败: {e}")
         return jsonify({'code': 500, 'message': str(e)}), 500
 
 @app.route('/api/spider/batch-works', methods=['POST'])
