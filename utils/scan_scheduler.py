@@ -304,6 +304,25 @@ class SubscriptionScanner:
         db = get_database()
         downloaded_ids = db.get_downloaded_work_ids(user_id)
         
+        # 获取订阅信息以便更新数据库
+        subscription_info = db.get_subscription(user_id)
+        subscription_db_id = subscription_info['id'] if subscription_info else None
+        
+        # 更新订阅的作品数量和粉丝数等信息
+        if subscription_info:
+            # 获取用户最新信息
+            try:
+                user_info = DouyinAPI.get_user_info(self._auth, user_url)
+                db.update_subscription(
+                    user_id,
+                    follower_count=user_info['user'].get('follower_count', 0),
+                    aweme_count=len(works),
+                    last_check_time=datetime.now().isoformat()
+                )
+                logger.info(f"更新了 {subscription['nickname']} 的用户信息")
+            except Exception as e:
+                logger.error(f"更新用户信息失败: {e}")
+        
         for work in works:
             create_time = work.get('create_time', 0)
             aweme_id = work.get('aweme_id', '')
@@ -312,6 +331,13 @@ class SubscriptionScanner:
             if create_time > latest_video_time:
                 latest_video_time = create_time
                 latest_video_id = aweme_id
+            
+            # 添加视频到订阅数据库（无论是否为新视频）
+            if subscription_db_id:
+                try:
+                    db.add_subscription_video(subscription_db_id, work)
+                except Exception as e:
+                    logger.error(f"添加视频到订阅数据库失败: {e}")
                 
             # 检查是否是新视频（发布时间比上次扫描记录的新，且未下载）
             if create_time > last_video_time and aweme_id not in downloaded_ids:

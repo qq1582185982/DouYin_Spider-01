@@ -1569,6 +1569,14 @@ def start_scan():
                                 )
                                 
                                 logger.info(f"自动下载完成 - {user_info['nickname']}: {download_stats}")
+                                
+                                # 标记视频为已下载
+                                db = get_database()
+                                for video in videos:
+                                    aweme_id = video.get('aweme_id')
+                                    if aweme_id:
+                                        db.mark_video_downloaded(aweme_id)
+                                        logger.info(f"标记视频 {aweme_id} 为已下载")
                             else:
                                 logger.error("爬虫或认证信息未初始化")
                             
