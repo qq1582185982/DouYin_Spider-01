@@ -52,6 +52,11 @@
       console.log('视频数据:', videoData);
       console.log('local_path:', videoData.video?.local_path);
       console.log('play_addr:', videoData.video?.play_addr);
+      console.log('work_type:', videoData.work_type);
+      console.log('images:', videoData.images);
+      if (videoData.images && videoData.images.length > 0) {
+        console.log('第一张图片数据:', videoData.images[0]);
+      }
       
       // 诊断文件是否存在
       if (videoData && videoData.video?.local_path) {
@@ -167,6 +172,26 @@
   $: if ($page.params.id) {
     loadVideoDetail();
   }
+  
+  // 获取图片URL
+  function getImageUrl(image: any): string {
+    if (typeof image === 'string') {
+      return image;
+    }
+    if (image && typeof image === 'object') {
+      // 尝试各种可能的字段
+      if (image.url_list && Array.isArray(image.url_list) && image.url_list.length > 0) {
+        return image.url_list[0];
+      }
+      if (image.url) {
+        return image.url;
+      }
+      if (image.uri) {
+        return image.uri;
+      }
+    }
+    return '';
+  }
 </script>
 
 <svelte:head>
@@ -222,7 +247,32 @@
         <!-- 封面区域 - 居中显示 -->
         <div class="w-full">
           <div class="relative overflow-hidden rounded-lg bg-black">
-            {#if showVideo && (videoData.video?.local_path || videoData.video?.play_addr)}
+            {#if videoData.work_type === '图集' && videoData.images && videoData.images.length > 0}
+              <!-- 图集展示 -->
+              <div class="bg-gray-100">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-2">
+                  {#each videoData.images as image, index}
+                    {@const imageUrl = getImageUrl(image)}
+                    <div class="relative aspect-square overflow-hidden rounded-lg bg-gray-200">
+                      <img 
+                        src={imageUrl}
+                        alt="{videoData.title} - 图片 {index + 1}"
+                        class="h-full w-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                        loading="lazy"
+                        on:click={() => window.open(imageUrl, '_blank')}
+                        on:error={(e) => {
+                          console.error('图片加载失败:', imageUrl);
+                          console.error('原始图片数据:', image);
+                        }}
+                      />
+                      <div class="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                        {index + 1} / {videoData.images.length}
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            {:else if showVideo && videoData.work_type === '视频' && (videoData.video?.local_path || videoData.video?.play_addr)}
               <!-- 视频播放器 -->
               <div class="relative aspect-video">
                 {#if videoLoading}
@@ -288,7 +338,7 @@
                   空格: 播放/暂停 | ←→: 快进/快退 | ESC: 退出
                 </div>
               </div>
-            {:else if videoData.video?.cover}
+            {:else if videoData.work_type === '视频' && videoData.video?.cover}
               <!-- 毛玻璃背景 -->
               <div class="absolute inset-0">
                 <img 
@@ -309,7 +359,7 @@
                 />
                 
                 <!-- 播放按钮覆盖层 -->
-                {#if videoData.video?.play_addr}
+                {#if videoData.video?.play_addr || videoData.video?.local_path}
                   <button
                     on:click={playVideo}
                     class="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 transition-colors group"
@@ -485,16 +535,6 @@
             </CardHeader>
             <CardContent class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
-                <div class="text-center p-3 bg-blue-50 rounded-lg">
-                  <div class="flex items-center justify-center gap-1 text-blue-600 mb-1">
-                    <Eye class="h-4 w-4" />
-                    <span class="text-xs">播放量</span>
-                  </div>
-                  <div class="font-semibold text-blue-700">
-                    {formatNumber(videoData.statistics.play_count)}
-                  </div>
-                </div>
-
                 <div class="text-center p-3 bg-red-50 rounded-lg">
                   <div class="flex items-center justify-center gap-1 text-red-600 mb-1">
                     <Heart class="h-4 w-4" />
