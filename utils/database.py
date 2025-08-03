@@ -232,16 +232,25 @@ class Database:
             logger.error(f"检查作品完整性失败: {e}")
             return False
     
-    def get_recent_downloads(self, limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
+    def get_recent_downloads(self, limit: int = 20, offset: int = 0, search: str = '') -> List[Dict[str, Any]]:
         """获取最近的下载记录"""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute('''
-                    SELECT * FROM downloads 
-                    ORDER BY download_time DESC 
-                    LIMIT ? OFFSET ?
-                ''', (limit, offset))
+                
+                if search:
+                    cursor.execute('''
+                        SELECT * FROM downloads 
+                        WHERE title LIKE ? OR nickname LIKE ?
+                        ORDER BY download_time DESC 
+                        LIMIT ? OFFSET ?
+                    ''', (f'%{search}%', f'%{search}%', limit, offset))
+                else:
+                    cursor.execute('''
+                        SELECT * FROM downloads 
+                        ORDER BY download_time DESC 
+                        LIMIT ? OFFSET ?
+                    ''', (limit, offset))
                 
                 results = cursor.fetchall()
                 for result in results:
@@ -256,12 +265,20 @@ class Database:
             logger.error(f"获取最近下载记录失败: {e}")
             return []
     
-    def get_total_works_count(self) -> int:
+    def get_total_works_count(self, search: str = '') -> int:
         """获取总作品数"""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute('SELECT COUNT(*) as count FROM downloads')
+                
+                if search:
+                    cursor.execute('''
+                        SELECT COUNT(*) as count FROM downloads 
+                        WHERE title LIKE ? OR nickname LIKE ?
+                    ''', (f'%{search}%', f'%{search}%'))
+                else:
+                    cursor.execute('SELECT COUNT(*) as count FROM downloads')
+                    
                 result = cursor.fetchone()
                 return result['count'] if result else 0
         except Exception as e:

@@ -906,12 +906,13 @@ def get_works():
     """获取作品列表"""
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 20))
+    search = request.args.get('search', '')
     
     try:
         # 从数据库读取基本数据
         db = get_database()
         offset = (page - 1) * limit
-        recent_works = db.get_recent_downloads(limit, offset)
+        recent_works = db.get_recent_downloads(limit, offset, search)
         
         # 为每个作品加载完整信息
         enhanced_works = []
@@ -991,7 +992,7 @@ def get_works():
                 })
         
         # 获取总数
-        total_count = db.get_total_works_count()
+        total_count = db.get_total_works_count(search)
         
         return jsonify({
             'code': 0,

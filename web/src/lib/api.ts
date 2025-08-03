@@ -145,13 +145,17 @@ class ApiClient {
   }
 
   // 获取作品列表
-  async getWorks(page: number = 1, limit: number = 20): Promise<ApiResponse<{
+  async getWorks(page: number = 1, limit: number = 20, search?: string): Promise<ApiResponse<{
     items: WorkInfo[];
     total: number;
     page: number;
     limit: number;
   }>> {
-    return this.request(`/works?page=${page}&limit=${limit}`);
+    let url = `/works?page=${page}&limit=${limit}`;
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    return this.request(url);
   }
   
   // 获取所有作者列表

@@ -31,7 +31,7 @@
     error = null;
     
     try {
-      const response = await api.getWorks(page, limit);
+      const response = await api.getWorks(page, limit, searchQuery);
       works = response.data.items;
       total = response.data.total;
       retryCount = 0;
@@ -97,6 +97,20 @@
   onMount(() => {
     loadWorks();
   });
+
+  let searchTimer: number | undefined;
+  function handleSearch() {
+    // 使用防抖，避免输入时频繁请求
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      page = 1; // 搜索时重置到第一页
+      loadWorks();
+    }, 500);
+  }
+
+  $: if (searchQuery !== undefined) {
+    handleSearch();
+  }
 
   $: totalPages = Math.ceil(total / limit);
   $: hasNextPage = page < totalPages;
