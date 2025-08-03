@@ -457,10 +457,11 @@ def spider_user():
 
 @app.route('/api/spider/work', methods=['POST'])
 def spider_work():
-    """爬取单个作品"""
+    """爬取单个作品（支持下载）"""
     try:
         data = request.get_json()
         work_url = data.get('work_url')
+        download = data.get('download', False)  # 是否下载
         
         if not work_url:
             raise BadRequest('work_url is required')
@@ -477,11 +478,128 @@ def spider_work():
         
         # 调用爬虫
         if data_spider and auth:
-            work_info = data_spider.spider_work(auth, work_url)
-            return jsonify({'code': 0, 'message': 'success', 'data': work_info})
+            if download:
+                # 下载视频
+                download_stats = data_spider.spider_some_work(
+                    auth, 
+                    [work_url], 
+                    spider_base_path, 
+                    'media',  # 只下载媒体文件
+                    excel_name='',
+                    force_download=data.get('force_download', False),
+                    use_database=True
+                )
+                
+                # 获取作品信息
+                work_info = data_spider.spider_work(auth, work_url)
+                work_info['download_stats'] = download_stats
+                
+                return jsonify({'code': 0, 'message': 'success', 'data': work_info})
+            else:
+                # 只获取信息
+                work_info = data_spider.spider_work(auth, work_url)
+                return jsonify({'code': 0, 'message': 'success', 'data': work_info})
         else:
             return jsonify({'code': 500, 'message': '爬虫未初始化'}), 500
             
+    except BadRequest as e:
+        return jsonify({'code': 400, 'message': str(e)}), 400
+    except Exception as e:
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/spider/batch-works', methods=['POST'])
+def spider_batch_works():
+    """批量下载视频链接"""
+    try:
+        data = request.get_json()
+        work_urls = data.get('work_urls', [])
+        
+        if not work_urls:
+            raise BadRequest('work_urls is required')
+        
+        if not config.get('cookie'):
+            raise BadRequest('请先配置Cookie')
+        
+        # 创建任务
+        task_id = str(uuid.uuid4())
+        task = {
+            'id': task_id,
+            'type': 'batch-works',
+            'status': 'pending',
+            'urls': work_urls,
+            'progress': 0,
+            'total': len(work_urls),
+            'results': [],
+            'created_at': int(time.time()),
+            'updated_at': int(time.time())
+        }
+        tasks[task_id] = task
+        
+        # 在后台线程中执行下载
+        def run_batch_download():
+            try:
+                task['status'] = 'running'
+                task['updated_at'] = int(time.time())
+                
+                # 使用配置的保存路径
+                save_path = config.get('save_path', './downloads')
+                spider_base_path = {
+                    'media': os.path.join(save_path, 'media'),
+                    'excel': os.path.join(save_path, 'excel')
+                }
+                
+                results = []
+                
+                for idx, url in enumerate(work_urls):
+                    try:
+                        # 下载单个视频
+                        download_stats = data_spider.spider_some_work(
+                            auth, 
+                            [url], 
+                            spider_base_path, 
+                            'media',
+                            excel_name='',
+                            force_download=data.get('force_download', False),
+                            use_database=True
+                        )
+                        
+                        # 获取作品信息
+                        work_info = data_spider.spider_work(auth, url)
+                        work_info['download_stats'] = download_stats
+                        
+                        results.append({
+                            'url': url,
+                            'status': 'success',
+                            'info': work_info
+                        })
+                        
+                    except Exception as e:
+                        logger.error(f"下载视频失败 {url}: {e}")
+                        results.append({
+                            'url': url,
+                            'status': 'failed',
+                            'error': str(e)
+                        })
+                    
+                    # 更新进度
+                    task['progress'] = idx + 1
+                    task['results'] = results
+                    task['updated_at'] = int(time.time())
+                
+                task['status'] = 'completed'
+                logger.info(f"批量下载完成: {len(results)} 个视频")
+                
+            except Exception as e:
+                logger.error(f"批量下载任务失败: {e}")
+                task['status'] = 'failed'
+                task['error'] = str(e)
+            finally:
+                task['updated_at'] = int(time.time())
+        
+        threading.Thread(target=run_batch_download).start()
+        
+        return jsonify({'code': 0, 'message': 'success', 'data': task})
+        
     except BadRequest as e:
         return jsonify({'code': 400, 'message': str(e)}), 400
     except Exception as e:

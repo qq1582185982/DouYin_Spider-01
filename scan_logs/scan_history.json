@@ -50,5 +50,45 @@
     "scan_time": "2025-08-03T08:52:58.176401",
     "scan_id": "717bda00-79e7-4aa6-9883-bbe181ecc55a",
     "timestamp": 1754182380
+  },
+  {
+    "total_subscriptions": 2,
+    "scanned_subscriptions": 2,
+    "failed_subscriptions": 0,
+    "total_new_videos": 68,
+    "scan_duration": 8.397467613220215,
+    "subscription_results": [
+      {
+        "user_id": "1416638745281630",
+        "nickname": "荒木大盗",
+        "new_videos_count": 68,
+        "scan_time": 2.66398286819458,
+        "error": null,
+        "sample_videos": [
+          {
+            "aweme_id": "7523562874930564411",
+            "desc": "这也是好起来了，都敢给我推这个了😂😂。#polo衫 #印花t恤"
+          },
+          {
+            "aweme_id": "7448109996518247737",
+            "desc": "#白头影 #不一样的自己 #毫无违和感"
+          },
+          {
+            "aweme_id": "7446525863723601210",
+            "desc": "#黑大衣之恋 #前任勿念我已有新人生"
+          }
+        ]
+      },
+      {
+        "user_id": "92563060518",
+        "nickname": "一只铁damn",
+        "new_videos_count": 0,
+        "scan_time": 2.711115598678589,
+        "error": null
+      }
+    ],
+    "scan_time": "2025-08-03T10:26:09.748568",
+    "scan_id": "6ed4b4d8-aef1-4453-8042-42346ac395d5",
+    "timestamp": 1754187978
   }
 ]

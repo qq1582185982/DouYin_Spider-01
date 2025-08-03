@@ -14,7 +14,8 @@
       "Bash(mkdir:*)",
       "Bash(curl:*)",
       "Bash(del utilsdownload_db.py utilssubscription_db.py)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": []
   }

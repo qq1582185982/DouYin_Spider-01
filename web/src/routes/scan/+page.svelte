@@ -38,7 +38,7 @@
 	let scanStatus: ScanStatus | null = null;
 	let scanStatistics: ScanStatistics | null = null;
 	let loading = false;
-	let statusInterval: number;
+	let statusInterval: ReturnType<typeof setInterval>;
 	
 	// 根据URL参数决定显示哪个视图
 	$: view = $page.url.searchParams.get('view') || 'main';
