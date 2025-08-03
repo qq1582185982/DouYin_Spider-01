@@ -276,7 +276,20 @@ class SubscriptionScanner:
         
         # 获取用户作品列表
         loguru_logger.info(f"正在获取用户 {subscription['nickname']} 的所有作品列表...")
-        works = await self.api.get_user_all_works(user_id)  # 不限制数量，获取所有作品
+        # 使用 user_url 而不是 user_id，确保获取正确用户的作品
+        user_url = subscription.get('user_url')
+        if not user_url:
+            # 如果没有 user_url，使用 sec_uid 构建
+            sec_uid = subscription.get('sec_uid')
+            if sec_uid:
+                user_url = f"https://www.douyin.com/user/{sec_uid}"
+            else:
+                logger.error(f"订阅 {subscription['nickname']} 缺少 user_url 或 sec_uid")
+                return []
+        
+        # 从同步API获取作品（因为异步API还没有实现正确的方法）
+        from dy_apis.douyin_api import DouyinAPI
+        works = DouyinAPI.get_user_all_work_info(self._auth, user_url)
         
         if not works:
             loguru_logger.info(f"用户 {subscription['nickname']} 没有作品")
