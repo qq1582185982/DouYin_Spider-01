@@ -15,6 +15,11 @@ from loguru import logger
 from main import Data_Spider
 from builder.auth import DouyinAuth
 from utils.database import get_database
+from utils.scan_scheduler import get_scanner, start_scanner, stop_scanner
+from utils.notification import send_new_videos_notification
+from utils.scan_logger import get_scan_logger
+from utils.scan_config import get_scan_config, update_scan_config, get_scan_config_manager
+import asyncio
 
 app = Flask(__name__)
 CORS(app)
@@ -118,6 +123,18 @@ def _get_local_video_url(save_path):
 data_spider = None
 auth = None
 base_path = None
+loop = None  # 事件循环
+
+# 创建异步任务的辅助函数
+def run_async(coro):
+    """在Flask中运行异步任务"""
+    global loop
+    if loop is None:
+        loop = asyncio.new_event_loop()
+        threading.Thread(target=loop.run_forever, daemon=True).start()
+    
+    future = asyncio.run_coroutine_threadsafe(coro, loop)
+    return future.result(timeout=30)  # 30秒超时
 
 def initialize():
     global data_spider, auth, base_path
@@ -1254,6 +1271,317 @@ def download_subscription_new_videos():
         return jsonify({'code': 400, 'message': str(e)}), 400
     except Exception as e:
         logger.error(f"启动订阅下载失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/status', methods=['GET'])
+def get_scan_status():
+    """获取扫描器状态"""
+    try:
+        scanner = get_scanner()
+        status = scanner.get_status()
+        
+        # 获取扫描统计信息
+        tracker_stats = scanner.tracker.get_statistics()
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'status': status,
+                'statistics': tracker_stats
+            }
+        })
+    except Exception as e:
+        logger.error(f"获取扫描状态失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/start', methods=['POST'])
+def start_scan():
+    """启动扫描任务"""
+    try:
+        data = request.get_json() or {}
+        scan_interval = data.get('scan_interval', 3600)  # 默认1小时
+        auto_download = data.get('auto_download', True)
+        
+        # 设置新视频回调
+        scanner = get_scanner()
+        
+        # 设置认证信息
+        if auth:
+            scanner.set_auth(auth)
+        else:
+            return jsonify({'code': 400, 'message': '请先配置Cookie'}), 400
+        
+        async def new_videos_callback(user_id, videos):
+            """处理新发现的视频"""
+            try:
+                # 获取用户信息
+                db = get_database()
+                user_info = db.get_subscription(user_id)
+                
+                # 发送通知
+                await send_new_videos_notification(user_info, videos)
+                
+                # 如果启用了自动下载
+                if auto_download and user_info.get('auto_download', True):
+                    # TODO: 触发下载任务
+                    logger.info(f"自动下载 {user_info['nickname']} 的 {len(videos)} 个新视频")
+                    
+            except Exception as e:
+                logger.error(f"处理新视频失败: {e}")
+        
+        scanner.set_on_new_videos_callback(new_videos_callback)
+        
+        # 启动扫描器
+        run_async(start_scanner(scan_interval, auto_download))
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'scan_interval': scan_interval,
+                'auto_download': auto_download
+            }
+        })
+    except Exception as e:
+        logger.error(f"启动扫描失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/stop', methods=['POST'])
+def stop_scan():
+    """停止扫描任务"""
+    try:
+        run_async(stop_scanner())
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success'
+        })
+    except Exception as e:
+        logger.error(f"停止扫描失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/pause', methods=['POST'])
+def pause_scan():
+    """暂停扫描"""
+    try:
+        scanner = get_scanner()
+        scanner.pause()
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success'
+        })
+    except Exception as e:
+        logger.error(f"暂停扫描失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/resume', methods=['POST'])
+def resume_scan():
+    """恢复扫描"""
+    try:
+        scanner = get_scanner()
+        scanner.resume()
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success'
+        })
+    except Exception as e:
+        logger.error(f"恢复扫描失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/once', methods=['POST'])
+def scan_once():
+    """执行一次扫描（手动触发）"""
+    try:
+        scanner = get_scanner()
+        
+        # 创建任务记录
+        task_id = str(uuid.uuid4())
+        task = {
+            'id': task_id,
+            'type': 'manual_scan',
+            'status': 'pending',
+            'progress': 0,
+            'total': 0,
+            'created_at': int(time.time()),
+            'updated_at': int(time.time())
+        }
+        tasks[task_id] = task
+        
+        # 在后台执行扫描
+        def run_scan():
+            try:
+                task['status'] = 'running'
+                task['updated_at'] = int(time.time())
+                
+                # 执行扫描
+                summary = run_async(scanner.scan_once())
+                
+                task['status'] = 'completed'
+                task['summary'] = summary
+                logger.info("手动扫描完成")
+                
+            except Exception as e:
+                logger.error(f"手动扫描失败: {e}")
+                task['status'] = 'failed'
+                task['error'] = str(e)
+            finally:
+                task['updated_at'] = int(time.time())
+        
+        threading.Thread(target=run_scan).start()
+        
+        return jsonify({'code': 0, 'message': 'success', 'data': task})
+        
+    except Exception as e:
+        logger.error(f"触发手动扫描失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/progress', methods=['GET'])
+def get_scan_progress():
+    """获取当前扫描进度"""
+    try:
+        scanner = get_scanner()
+        
+        if not scanner.is_scanning():
+            return jsonify({
+                'code': 0,
+                'message': 'success',
+                'data': {
+                    'scanning': False,
+                    'progress': None
+                }
+            })
+        
+        # 获取进度信息
+        # 这里需要从scanner获取当前的collector
+        # 暂时返回基本信息
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'scanning': True,
+                'progress': {
+                    'message': '扫描进行中...'
+                }
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"获取扫描进度失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/logs', methods=['GET'])
+def get_scan_logs():
+    """获取扫描日志"""
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        
+        scan_logger = get_scan_logger()
+        logs = scan_logger.get_history(limit)
+        stats = scan_logger.get_statistics()
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'logs': logs,
+                'statistics': stats
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"获取扫描日志失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/logs/<scan_id>', methods=['GET'])
+def get_scan_log_detail(scan_id):
+    """获取扫描日志详情"""
+    try:
+        scan_logger = get_scan_logger()
+        detail = scan_logger.get_scan_detail(scan_id)
+        
+        if not detail:
+            return jsonify({'code': 404, 'message': '日志不存在'}), 404
+            
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': detail
+        })
+        
+    except Exception as e:
+        logger.error(f"获取扫描日志详情失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/config', methods=['GET'])
+def get_scan_configuration():
+    """获取扫描配置"""
+    try:
+        config = get_scan_config()
+        config_manager = get_scan_config_manager()
+        
+        # 验证配置
+        validation = config_manager.validate_config()
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'config': config_manager.export_config(),
+                'validation': validation
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"获取扫描配置失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/config', methods=['POST'])
+def update_scan_configuration():
+    """更新扫描配置"""
+    try:
+        data = request.get_json() or {}
+        
+        # 更新配置
+        success = update_scan_config(data)
+        
+        if not success:
+            return jsonify({'code': 400, 'message': '配置更新失败'}), 400
+            
+        # 如果扫描器正在运行，应用新配置
+        scanner = get_scanner()
+        if data.get('scan_interval'):
+            scanner.scan_interval = data['scan_interval']
+        if 'auto_download' in data:
+            scanner.auto_download = data['auto_download']
+            
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': get_scan_config_manager().export_config()
+        })
+        
+    except Exception as e:
+        logger.error(f"更新扫描配置失败: {e}")
+        return jsonify({'code': 500, 'message': str(e)}), 500
+
+@app.route('/api/scan/config/reset', methods=['POST'])
+def reset_scan_configuration():
+    """重置扫描配置为默认值"""
+    try:
+        config_manager = get_scan_config_manager()
+        config_manager.reset_to_defaults()
+        
+        return jsonify({
+            'code': 0,
+            'message': 'success',
+            'data': config_manager.export_config()
+        })
+        
+    except Exception as e:
+        logger.error(f"重置扫描配置失败: {e}")
         return jsonify({'code': 500, 'message': str(e)}), 500
 
 @app.route('/')

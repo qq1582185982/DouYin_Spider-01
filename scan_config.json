@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "scan_interval": 3600,
+  "auto_download": true,
+  "max_videos_per_scan": 9999,
+  "source_delay": 3,
+  "retry_on_error": true,
+  "max_retries": 3,
+  "notify_on_complete": true,
+  "notify_on_new_videos": true,
+  "notify_on_error": true,
+  "min_videos_for_notification": 1,
+  "log_retention_days": 30,
+  "detailed_logging": false,
+  "concurrent_downloads": 16,
+  "download_timeout": 300,
+  "pause_on_risk_control": true,
+  "risk_control_pause_minutes": 30
+}

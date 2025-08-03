@@ -269,7 +269,7 @@
           <div 
             class="h-full rounded-full bg-primary transition-all"
             style="width: {stats.total_videos > 0 ? (stats.downloaded_videos / stats.total_videos) * 100 : 0}%"
-          />
+          ></div>
         </div>
       </CardContent>
     </Card>

@@ -4,11 +4,14 @@ import re
 import time
 import urllib
 import uuid
+import asyncio
+from typing import List, Dict, Any, Optional
 
 import requests
 requests.packages.urllib3.disable_warnings()
 from bs4 import BeautifulSoup
 from protobuf_to_dict import protobuf_to_dict
+from loguru import logger
 
 import static.Response_pb2 as ResponseProto
 from builder.header import HeaderBuilder, HeaderType
@@ -22,6 +25,10 @@ class DouyinAPI:
     douyin_url = 'https://www.douyin.com'
     live_url = 'https://live.douyin.com'
     creator = "https://creator.douyin.com"
+    
+    def __init__(self, auth=None):
+        """初始化DouyinAPI"""
+        self.auth = auth
 
 
     @staticmethod
@@ -1512,3 +1519,4 @@ if __name__ == '__main__':
     # while True:
     #     print(DouyinAPI.diggLiveRoom(auth_, room_id, '10'))
     #     time.sleep(1)
+    

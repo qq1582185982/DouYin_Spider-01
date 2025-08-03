@@ -1,0 +1,54 @@
+[
+  {
+    "total_subscriptions": 1,
+    "scanned_subscriptions": 1,
+    "failed_subscriptions": 1,
+    "total_new_videos": 0,
+    "scan_duration": 0.002168416976928711,
+    "subscription_results": [
+      {
+        "user_id": "92563060518",
+        "nickname": "一只铁damn",
+        "new_videos_count": 0,
+        "scan_time": 0.00021648406982421875,
+        "error": "'DouyinAPI' object has no attribute 'get_user_all_works'"
+      }
+    ],
+    "scan_time": "2025-08-03T08:46:14.372001",
+    "scan_id": "66c4bcac-fb13-4ea7-81c2-d48c94d63ad4",
+    "timestamp": 1754181974
+  },
+  {
+    "total_subscriptions": 1,
+    "scanned_subscriptions": 1,
+    "failed_subscriptions": 0,
+    "total_new_videos": 50,
+    "scan_duration": 2.7786030769348145,
+    "subscription_results": [
+      {
+        "user_id": "92563060518",
+        "nickname": "一只铁damn",
+        "new_videos_count": 50,
+        "scan_time": 2.763806104660034,
+        "error": null,
+        "sample_videos": [
+          {
+            "aweme_id": "7523562874930564411",
+            "desc": "这也是好起来了，都敢给我推这个了😂😂。#polo衫 #印花t恤"
+          },
+          {
+            "aweme_id": "7448109996518247737",
+            "desc": "#白头影 #不一样的自己 #毫无违和感"
+          },
+          {
+            "aweme_id": "7446525863723601210",
+            "desc": "#黑大衣之恋 #前任勿念我已有新人生"
+          }
+        ]
+      }
+    ],
+    "scan_time": "2025-08-03T08:52:58.176401",
+    "scan_id": "717bda00-79e7-4aa6-9883-bbe181ecc55a",
+    "timestamp": 1754182380
+  }
+]
