@@ -7,6 +7,12 @@
   import { Video, Search, Calendar, User, Eye, ChevronLeft, ChevronRight } from 'lucide-svelte';
   import api from '$lib/api';
   import { formatDate, formatNumber } from '$lib/utils';
+
+  function formatDuration(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  }
   import type { WorkInfo } from '$lib/types';
 
   let works: WorkInfo[] = [];
@@ -208,6 +214,32 @@
               />
               <div class="hidden aspect-[9/16] w-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
                 <Video class="h-8 w-8 text-gray-400" />
+              </div>
+              
+              <!-- 类型标记 -->
+              <div class="absolute left-2 top-2">
+                {#if work.work_type === '图集'}
+                  <div class="flex items-center gap-1 rounded bg-black/60 px-2 py-1 text-xs text-white">
+                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                    </svg>
+                    图文
+                  </div>
+                {:else if work.work_type === '视频'}
+                  <div class="flex items-center gap-1 rounded bg-black/60 px-2 py-1 text-xs text-white">
+                    <Video class="h-3 w-3" />
+                    {#if work.video?.duration}
+                      {formatDuration(work.video.duration)}
+                    {:else}
+                      视频
+                    {/if}
+                  </div>
+                {:else}
+                  <div class="flex items-center gap-1 rounded bg-black/60 px-2 py-1 text-xs text-white">
+                    <Video class="h-3 w-3" />
+                    {work.work_type || '视频'}
+                  </div>
+                {/if}
               </div>
             </div>
           {:else}

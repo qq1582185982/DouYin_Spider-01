@@ -32,3 +32,5 @@ datas
 *.db
 问题/
 downloads002/
+config.json
+data.sqlite

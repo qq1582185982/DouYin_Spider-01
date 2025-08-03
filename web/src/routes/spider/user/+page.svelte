@@ -289,10 +289,35 @@
                         <Image class="h-2.5 w-2.5" />
                         图文
                       </div>
-                    {:else}
+                    {:else if video.aweme_type === 61}
+                      <div class="flex items-center gap-0.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                        <Video class="h-2.5 w-2.5" />
+                        AI生成
+                      </div>
+                    {:else if video.aweme_type === 66}
+                      <div class="flex items-center gap-0.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                        <Video class="h-2.5 w-2.5" />
+                        直播回放
+                      </div>
+                    {:else if video.aweme_type === 51}
+                      <div class="flex items-center gap-0.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                        <Video class="h-2.5 w-2.5" />
+                        合拍
+                      </div>
+                    {:else if video.aweme_type === 109}
+                      <div class="flex items-center gap-0.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                        <Video class="h-2.5 w-2.5" />
+                        直播片段
+                      </div>
+                    {:else if video.aweme_type === 0 && video.duration > 0}
                       <div class="flex items-center gap-0.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
                         <Video class="h-2.5 w-2.5" />
                         {formatDuration(video.duration / 1000)}
+                      </div>
+                    {:else}
+                      <div class="flex items-center gap-0.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                        <Video class="h-2.5 w-2.5" />
+                        视频
                       </div>
                     {/if}
                   </div>
