@@ -77,10 +77,20 @@
 	}
 
 	function formatDate(dateStr: string | number): string {
-		if (typeof dateStr === 'number') {
-			return new Date(dateStr * 1000).toLocaleString('zh-CN');
+		try {
+			if (typeof dateStr === 'number') {
+				return new Date(dateStr * 1000).toLocaleString('zh-CN');
+			}
+			const date = new Date(dateStr);
+			if (isNaN(date.getTime())) {
+				// 如果无法解析，尝试其他格式
+				return dateStr ? String(dateStr) : '未知时间';
+			}
+			return date.toLocaleString('zh-CN');
+		} catch (e) {
+			console.error('Date formatting error:', e);
+			return '未知时间';
 		}
-		return new Date(dateStr).toLocaleString('zh-CN');
 	}
 
 	function formatDuration(seconds: number): string {

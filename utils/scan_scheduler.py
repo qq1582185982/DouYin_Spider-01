@@ -275,8 +275,8 @@ class SubscriptionScanner:
         last_video_time = progress.get('last_video_time', 0) if progress else 0
         
         # 获取用户作品列表
-        loguru_logger.info(f"正在获取用户 {subscription['nickname']} 的作品列表...")
-        works = await self.api.get_user_all_works(user_id, max_count=50)  # 限制获取最新50个
+        loguru_logger.info(f"正在获取用户 {subscription['nickname']} 的所有作品列表...")
+        works = await self.api.get_user_all_works(user_id)  # 不限制数量，获取所有作品
         
         if not works:
             loguru_logger.info(f"用户 {subscription['nickname']} 没有作品")
