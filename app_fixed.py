@@ -27,6 +27,8 @@ CORS(app)
 # 全局变量
 tasks = {}
 CONFIG_FILE = 'config.json'
+_scan_auth = None
+_scan_data_spider = None
 
 # 默认配置
 DEFAULT_CONFIG = {
@@ -1504,6 +1506,8 @@ def get_scan_status():
 def start_scan():
     """启动扫描任务"""
     try:
+        global _scan_auth, _scan_data_spider
+        
         data = request.get_json() or {}
         scan_interval = data.get('scan_interval', 3600)  # 默认1小时
         auto_download = data.get('auto_download', True)
@@ -1514,11 +1518,16 @@ def start_scan():
         # 设置认证信息
         if auth:
             scanner.set_auth(auth)
+            # 保存到全局变量供回调使用
+            _scan_auth = auth
+            _scan_data_spider = data_spider
         else:
             return jsonify({'code': 400, 'message': '请先配置Cookie'}), 400
         
         async def new_videos_callback(user_id, videos):
             """处理新发现的视频"""
+            global _scan_auth, _scan_data_spider
+            
             try:
                 # 获取用户信息
                 db = get_database()
@@ -1529,8 +1538,47 @@ def start_scan():
                 
                 # 如果启用了自动下载
                 if auto_download and user_info.get('auto_download', True):
-                    # TODO: 触发下载任务
-                    logger.info(f"自动下载 {user_info['nickname']} 的 {len(videos)} 个新视频")
+                    logger.info(f"开始自动下载 {user_info['nickname']} 的 {len(videos)} 个新视频")
+                    
+                    # 准备下载参数
+                    work_urls = [f"https://www.douyin.com/video/{video['aweme_id']}" for video in videos]
+                    
+                    # 在后台线程中执行下载
+                    def download_new_videos():
+                        try:
+                            save_path = ensure_download_directories()
+                            spider_base_path = {
+                                'media': os.path.join(save_path, 'media'),
+                                'excel': os.path.join(save_path, 'excel')
+                            }
+                            
+                            # 生成Excel文件名（使用用户昵称和时间戳）
+                            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                            excel_name = f"{user_info['nickname']}_自动下载_{timestamp}"
+                            
+                            # 调用爬虫下载全部内容
+                            if _scan_data_spider and _scan_auth:
+                                download_stats = _scan_data_spider.spider_some_work(
+                                    _scan_auth,
+                                    work_urls,
+                                    spider_base_path,
+                                    'all',  # 下载全部内容（媒体文件 + Excel）
+                                    excel_name,  # Excel文件名
+                                    proxies=None,
+                                    use_database=True
+                                )
+                                
+                                logger.info(f"自动下载完成 - {user_info['nickname']}: {download_stats}")
+                            else:
+                                logger.error("爬虫或认证信息未初始化")
+                            
+                        except Exception as e:
+                            logger.error(f"自动下载失败 - {user_info['nickname']}: {e}")
+                    
+                    # 在新线程中执行下载
+                    download_thread = threading.Thread(target=download_new_videos)
+                    download_thread.daemon = True  # 设置为守护线程
+                    download_thread.start()
                     
             except Exception as e:
                 logger.error(f"处理新视频失败: {e}")

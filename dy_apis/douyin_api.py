@@ -126,7 +126,6 @@ class DouyinAPI:
         if 'v.douyin.com' in url:
             try:
                 # 发送请求获取重定向后的URL
-                import requests
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
                 }
