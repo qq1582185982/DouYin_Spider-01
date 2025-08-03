@@ -259,9 +259,11 @@
         {:else}
           <div class="grid gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {#each userVideos as video}
-              <div
-                class="relative cursor-pointer rounded-lg border transition-colors {selectedVideos.has(video.aweme_id) ? 'border-primary bg-primary/5' : ''}"
+              <button
+                type="button"
+                class="relative cursor-pointer rounded-lg border transition-colors text-left {selectedVideos.has(video.aweme_id) ? 'border-primary bg-primary/5' : ''}"
                 on:click={() => toggleVideo(video.aweme_id)}
+                on:keydown={(e) => e.key === 'Enter' && toggleVideo(video.aweme_id)}
               >
                 <!-- 选中标记 -->
                 {#if selectedVideos.has(video.aweme_id)}
@@ -308,7 +310,7 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
             {/each}
           </div>
         {/if}
@@ -323,10 +325,10 @@
         <CardTitle>下载设置</CardTitle>
       </CardHeader>
       <CardContent class="space-y-4">
-        <div>
-          <label class="mb-2 block text-sm font-medium">
+        <fieldset>
+          <legend class="mb-2 block text-sm font-medium">
             保存方式
-          </label>
+          </legend>
           <div class="space-y-2">
             {#each saveOptions as option}
               <label class="flex items-center space-x-2">
@@ -342,7 +344,7 @@
               </label>
             {/each}
           </div>
-        </div>
+        </fieldset>
 
         {#if error}
           <div class="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-red-800">

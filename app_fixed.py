@@ -139,8 +139,8 @@ def run_async(coro):
 def initialize():
     global data_spider, auth, base_path
     try:
-        # 创建保存目录
-        save_path = config.get('save_path', './downloads')
+        # 创建保存目录 - 使用相对路径避免中文路径问题
+        save_path = './downloads'
         os.makedirs(os.path.join(save_path, 'media'), exist_ok=True)
         os.makedirs(os.path.join(save_path, 'excel'), exist_ok=True)
         
@@ -275,6 +275,10 @@ def search_users():
         if not config.get('cookie'):
             raise BadRequest('请先配置Cookie')
         
+        # 确保auth已初始化
+        if not auth:
+            raise BadRequest('认证模块未初始化，请重新启动服务')
+        
         # 调用API搜索用户
         from dy_apis.douyin_api import DouyinAPI
         user_list = DouyinAPI.search_some_user(auth, query, num)
@@ -283,16 +287,27 @@ def search_users():
         formatted_users = []
         for user in user_list:
             user_info = user.get('user_info', {})
+            sec_uid = user_info.get('sec_uid', '')
+            user_url = f"https://www.douyin.com/user/{sec_uid}"
+            
+            # 获取准确的用户信息（包括作品数量）
+            try:
+                detailed_user_info = DouyinAPI.get_user_info(auth, user_url)
+                accurate_aweme_count = detailed_user_info['user'].get('aweme_count', 0)
+            except Exception as e:
+                logger.warning(f"获取用户 {sec_uid} 详细信息失败: {e}")
+                accurate_aweme_count = user_info.get('aweme_count', 0)
+            
             formatted_users.append({
                 'user_id': user_info.get('uid', ''),
-                'sec_uid': user_info.get('sec_uid', ''),
+                'sec_uid': sec_uid,
                 'nickname': user_info.get('nickname', ''),
                 'avatar': user_info.get('avatar_thumb', {}).get('url_list', [''])[0],
                 'signature': user_info.get('signature', ''),
                 'follower_count': user_info.get('follower_count', 0),
                 'total_favorited': user_info.get('total_favorited', 0),
-                'aweme_count': user_info.get('aweme_count', 0),
-                'user_url': f"https://www.douyin.com/user/{user_info.get('sec_uid', '')}"
+                'aweme_count': accurate_aweme_count,
+                'user_url': user_url
             })
         
         return jsonify({'code': 0, 'message': 'success', 'data': formatted_users})
@@ -314,6 +329,10 @@ def get_user_videos():
         
         if not config.get('cookie'):
             raise BadRequest('请先配置Cookie')
+        
+        # 确保auth已初始化
+        if not auth:
+            raise BadRequest('认证模块未初始化，请重新启动服务')
         
         # 获取用户信息和作品列表
         from dy_apis.douyin_api import DouyinAPI

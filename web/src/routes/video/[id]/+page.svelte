@@ -253,13 +253,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-2">
                   {#each videoData.images as image, index}
                     {@const imageUrl = getImageUrl(image)}
-                    <div class="relative aspect-square overflow-hidden rounded-lg bg-gray-200">
+                    <button
+                      type="button"
+                      class="relative aspect-square overflow-hidden rounded-lg bg-gray-200"
+                      on:click={() => window.open(imageUrl, '_blank')}
+                      on:keydown={(e) => e.key === 'Enter' && window.open(imageUrl, '_blank')}
+                    >
                       <img 
                         src={imageUrl}
                         alt="{videoData.title} - 图片 {index + 1}"
-                        class="h-full w-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                        class="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
                         loading="lazy"
-                        on:click={() => window.open(imageUrl, '_blank')}
                         on:error={(e) => {
                           console.error('图片加载失败:', imageUrl);
                           console.error('原始图片数据:', image);
@@ -268,7 +272,7 @@
                       <div class="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                         {index + 1} / {videoData.images.length}
                       </div>
-                    </div>
+                    </button>
                   {/each}
                 </div>
               </div>
@@ -318,6 +322,7 @@
                     toast.error('视频播放失败，请尝试在抖音中打开');
                   }}
                 >
+                  <track kind="captions" src="" label="中文" srclang="zh" default />
                   <p>您的浏览器不支持视频播放</p>
                 </video>
                 
