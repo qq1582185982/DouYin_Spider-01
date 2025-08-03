@@ -58,7 +58,10 @@
 ### 🎯安装依赖
 ```
 pip install -r requirements.txt
+python app_fixed.py  
+cd .\web\
 npm install
+npm run dev
 ```
 
 ### 🎨配置文件
