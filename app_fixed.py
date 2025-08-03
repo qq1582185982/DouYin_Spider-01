@@ -38,6 +38,7 @@ DEFAULT_CONFIG = {
 def load_config():
     """从配置文件和环境变量加载配置"""
     config = DEFAULT_CONFIG.copy()
+    config_loaded = False
     
     # 首先尝试从config.json读取
     if os.path.exists(CONFIG_FILE):
@@ -46,8 +47,24 @@ def load_config():
                 saved_config = json.load(f)
                 config.update(saved_config)
                 logger.info(f"从配置文件加载配置: {CONFIG_FILE}")
+                config_loaded = True
         except Exception as e:
             logger.warning(f"读取配置文件失败: {e}")
+    
+    # 如果配置文件不存在或读取失败，创建默认配置文件
+    if not config_loaded:
+        logger.info("配置文件不存在或读取失败，创建默认配置文件")
+        try:
+            # 确保配置目录存在
+            config_dir = os.path.dirname(CONFIG_FILE)
+            if config_dir and not os.path.exists(config_dir):
+                os.makedirs(config_dir, exist_ok=True)
+            
+            # 保存默认配置
+            save_config(config)
+            logger.info(f"已创建默认配置文件: {CONFIG_FILE}")
+        except Exception as e:
+            logger.error(f"创建默认配置文件失败: {e}")
     
     # 然后从.env文件读取Cookie（如果config中没有）
     if not config.get('cookie'):
@@ -139,10 +156,8 @@ def run_async(coro):
 def initialize():
     global data_spider, auth, base_path
     try:
-        # 创建保存目录 - 使用相对路径避免中文路径问题
-        save_path = './downloads'
-        os.makedirs(os.path.join(save_path, 'media'), exist_ok=True)
-        os.makedirs(os.path.join(save_path, 'excel'), exist_ok=True)
+        # 确保下载目录存在
+        ensure_download_directories()
         
         # 初始化爬虫
         data_spider = Data_Spider()
@@ -164,6 +179,8 @@ def initialize():
         else:
             logger.warning("未找到Cookie配置")
         
+        # 设置基础路径
+        save_path = config.get('save_path', './downloads')
         base_path = {
             'media': os.path.join(save_path, 'media'),
             'excel': os.path.join(save_path, 'excel')
@@ -174,6 +191,38 @@ def initialize():
         logger.info(f"保存路径: {save_path}")
     except Exception as e:
         logger.error(f"系统初始化失败: {e}")
+        raise
+
+def ensure_download_directories():
+    """确保下载目录存在"""
+    try:
+        # 获取保存路径，如果配置中没有则使用默认路径
+        save_path = config.get('save_path', './downloads')
+        
+        # 规范化路径
+        save_path = os.path.normpath(save_path)
+        
+        # 创建主下载目录
+        if not os.path.exists(save_path):
+            os.makedirs(save_path, exist_ok=True)
+            logger.info(f"创建下载目录: {save_path}")
+        
+        # 创建子目录
+        media_dir = os.path.join(save_path, 'media')
+        excel_dir = os.path.join(save_path, 'excel')
+        
+        if not os.path.exists(media_dir):
+            os.makedirs(media_dir, exist_ok=True)
+            logger.info(f"创建媒体目录: {media_dir}")
+        
+        if not os.path.exists(excel_dir):
+            os.makedirs(excel_dir, exist_ok=True)
+            logger.info(f"创建Excel目录: {excel_dir}")
+        
+        logger.info(f"下载目录检查完成: {save_path}")
+        return save_path
+    except Exception as e:
+        logger.error(f"创建下载目录失败: {e}")
         raise
 
 @app.route('/api/system/status', methods=['GET'])
@@ -413,16 +462,12 @@ def spider_user():
                 
                 print(f"开始爬取用户: {user_url}")
                 
-                # 使用配置的保存路径
-                save_path = config.get('save_path', './downloads')
+                # 确保下载目录存在
+                save_path = ensure_download_directories()
                 spider_base_path = {
                     'media': os.path.join(save_path, 'media'),
                     'excel': os.path.join(save_path, 'excel')
                 }
-                
-                # 确保目录存在
-                os.makedirs(spider_base_path['media'], exist_ok=True)
-                os.makedirs(spider_base_path['excel'], exist_ok=True)
                 
                 # 实际调用爬虫
                 if data_spider and auth:
@@ -496,8 +541,8 @@ def spider_work():
         if not config.get('cookie'):
             raise BadRequest('请先配置Cookie')
         
-        # 使用配置的保存路径
-        save_path = config.get('save_path', './downloads')
+        # 确保下载目录存在
+        save_path = ensure_download_directories()
         spider_base_path = {
             'media': os.path.join(save_path, 'media'),
             'excel': os.path.join(save_path, 'excel')
@@ -587,8 +632,8 @@ def spider_batch_works():
                 task['status'] = 'running'
                 task['updated_at'] = int(time.time())
                 
-                # 使用配置的保存路径
-                save_path = config.get('save_path', './downloads')
+                # 确保下载目录存在
+                save_path = ensure_download_directories()
                 spider_base_path = {
                     'media': os.path.join(save_path, 'media'),
                     'excel': os.path.join(save_path, 'excel')
@@ -687,16 +732,12 @@ def spider_search():
                 
                 print(f"开始搜索: {query}")
                 
-                # 使用配置的保存路径
-                save_path = config.get('save_path', './downloads')
+                # 确保下载目录存在
+                save_path = ensure_download_directories()
                 spider_base_path = {
                     'media': os.path.join(save_path, 'media'),
                     'excel': os.path.join(save_path, 'excel')
                 }
-                
-                # 确保目录存在
-                os.makedirs(spider_base_path['media'], exist_ok=True)
-                os.makedirs(spider_base_path['excel'], exist_ok=True)
                 
                 # 调用爬虫
                 if data_spider and auth:
@@ -1389,8 +1430,8 @@ def download_subscription_new_videos():
                 task['status'] = 'running'
                 task['updated_at'] = int(time.time())
                 
-                # 使用配置的保存路径
-                save_path = config.get('save_path', './downloads')
+                # 确保下载目录存在
+                save_path = ensure_download_directories()
                 spider_base_path = {
                     'media': os.path.join(save_path, 'media'),
                     'excel': os.path.join(save_path, 'excel')
